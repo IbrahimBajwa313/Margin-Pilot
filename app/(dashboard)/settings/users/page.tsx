@@ -1,0 +1,411 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { 
+  Users, 
+  Plus, 
+  Mail, 
+  Edit,
+  Trash2,
+  Crown,
+  Shield,
+  User as UserIcon,
+  Clock,
+  AlertCircle,
+  UserCheck
+} from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
+import { toast } from "sonner"
+
+const ROLES = [
+  { value: "admin", label: "Admin", icon: Crown, description: "Full access to all settings" },
+  { value: "manager", label: "Manager", icon: Shield, description: "Manage branch operations" },
+  { value: "staff", label: "Staff", icon: UserIcon, description: "View and update daily data" }
+]
+
+export default function CompanyUsers() {
+  const { userProfile, updateProfile } = useAuth()
+  const [inviteEmail, setInviteEmail] = useState("")
+  const [selectedRole, setSelectedRole] = useState<"admin" | "manager" | "staff">("staff")
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<string | null>(null)
+  const [editingRole, setEditingRole] = useState<"admin" | "manager" | "staff">("staff")
+
+  if (!userProfile) {
+    return (
+      <div className="container mx-auto py-6 px-4 md:py-8 md:px-6 min-w-0">
+        <div className="text-center">
+          <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h2 className="text-xl md:text-2xl font-bold mb-2">No Company Found</h2>
+          <p className="text-sm md:text-base text-muted-foreground">
+            You need to complete the setup wizard first.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Check if current user is admin
+  const currentUserIsAdmin = true // In a real app, this would check the user's role
+
+  const handleInviteUser = () => {
+    if (!inviteEmail || !userProfile) return
+
+    const newUser = {
+      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      firstName: "New",
+      lastName: "User",
+      email: inviteEmail,
+      role: selectedRole as "admin" | "manager" | "staff",
+      status: "invited" as const,
+      createdAt: new Date().toISOString()
+    }
+
+    updateProfile({
+      company: {
+        ...userProfile.company,
+        users: [...(userProfile?.company?.users || []), newUser]
+      }
+    })
+
+    setInviteEmail("")
+    setSelectedRole("staff")
+    setIsInviteDialogOpen(false)
+    toast.success(`Invitation sent to ${inviteEmail}`)
+  }
+
+  const handleUpdateRole = (userId: string) => {
+    if (!userProfile) return
+
+    const updatedUsers = (userProfile?.company?.users || [])?.map(user =>
+      user.id === userId ? { ...user, role: editingRole } : user
+    )
+
+    updateProfile({
+      company: {
+        ...userProfile.company,
+        users: updatedUsers
+      }
+    })
+
+    setEditingUser(null)
+    toast.success("User role updated successfully")
+  }
+
+  const handleRemoveUser = (userId: string) => {
+    if (!userProfile) return
+
+    const user = (userProfile?.company?.users || []).find(u => u.id === userId)
+    if (user && confirm(`Are you sure you want to remove ${user.firstName} ${user.lastName}?`)) {
+      const updatedUsers = (userProfile?.company?.users || []).filter(u => u.id !== userId)
+      updateProfile({
+        company: {
+          ...userProfile.company,
+          users: updatedUsers
+        }
+      })
+      toast.success(`User ${user.firstName} ${user.lastName} removed successfully`)
+    }
+  }
+
+  const getRoleBadge = (role: "admin" | "manager" | "staff") => {
+    const roleConfig = ROLES.find(r => r.value === role)
+    const Icon = roleConfig?.icon || UserIcon
+    
+    return (
+      <Badge variant={role === "admin" ? "default" : role === "manager" ? "secondary" : "outline"} className="flex items-center gap-1">
+        <Icon className="h-3 w-3" />
+        {roleConfig?.label}
+      </Badge>
+    )
+  }
+
+  const getStatusBadge = (status: "active" | "invited" | "inactive") => {
+    switch (status) {
+      case "active":
+        return <Badge className="bg-green-100 text-green-800">Active</Badge>
+      case "invited":
+        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+      case "inactive":
+        return <Badge variant="secondary">Inactive</Badge>
+      default:
+        return <Badge variant="outline">Unknown</Badge>
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString()
+  }
+
+  const formatLastActive = (dateString?: string) => {
+    if (!dateString) return "Never"
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 0) return "Today"
+    if (diffDays === 1) return "Yesterday"
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    return formatDate(dateString)
+  }
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  }
+
+  // Combine current user with company users for display
+  const allUsers = [
+    {
+      id: userProfile.id,
+      firstName: userProfile.firstName,
+      lastName: userProfile.lastName,
+      email: userProfile.email,
+      role: "admin" as const,
+      status: "active" as const,
+      lastActive: new Date().toISOString(),
+      createdAt: userProfile.createdAt,
+      isCurrentUser: true
+    },
+    ...(userProfile?.company?.users || [])?.map(user => ({ ...user, isCurrentUser: false }))
+  ]
+
+  if (!currentUserIsAdmin) {
+    return (
+      <div className="container mx-auto py-6 px-4 md:py-8 md:px-6 min-w-0">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Only admins can view and manage company users.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex-1 space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 pt-4 md:pt-6 min-h-screen pb-20 min-w-0">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white min-w-0">
+          Company Users
+        </h2>
+        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full sm:w-auto shrink-0">
+              <Plus className="h-4 w-4 mr-2" />
+              Invite User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invite New User</DialogTitle>
+              <DialogDescription>
+                Send an invitation to join your company team.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="colleague@example.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <Select value={selectedRole} onValueChange={(value: "admin" | "manager" | "staff") => setSelectedRole(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES?.map((role) => {
+                      const Icon = role.icon
+                      return (
+                        <SelectItem key={role.value} value={role.value}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" />
+                            <div>
+                              <div className="font-medium">{role.label}</div>
+                              <div className="text-sm text-muted-foreground">{role.description}</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 pt-4">
+                <Button onClick={handleInviteUser} disabled={!inviteEmail} className="w-full sm:w-auto">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Invitation
+                </Button>
+                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)} className="w-full sm:w-auto">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-12 lg:grid-cols-12 min-w-0">
+        <div className="lg:col-span-12 space-y-4 md:space-y-6 min-w-0">
+          {/* Privacy Notice */}
+          <Alert className="min-w-0">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <AlertDescription className="text-sm md:text-base">
+          <strong>Privacy Notice:</strong> Only admins can see this user management list. User management and permissions are controlled here. All user data is stored securely and only accessible to authorized administrators.
+        </AlertDescription>
+      </Alert>
+
+      {/* Users Table */}
+      <Card className="min-w-0 overflow-hidden">
+        <CardHeader className="px-4 md:px-6">
+          <CardTitle className="text-base md:text-lg">Team Members</CardTitle>
+          <CardDescription className="text-sm">
+            {allUsers.length} users in your company
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 md:px-6 overflow-x-hidden">
+          {allUsers.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No Team Members Yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Invite your first team member to get started.
+              </p>
+              <Button onClick={() => setIsInviteDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Invite User
+              </Button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto w-full -mx-1 px-1">
+              <Table className="min-w-[640px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Active</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allUsers?.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.isCurrentUser && userProfile.photo ? userProfile.photo : undefined} />
+                          <AvatarFallback>
+                            {getInitials(user.firstName, user.lastName)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {user.firstName} {user.lastName}
+                            {user.isCurrentUser && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                <UserCheck className="h-3 w-3 mr-1" />
+                                You
+                              </Badge>
+                            )}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {user.isCurrentUser ? "Company Admin" : "Team Member"}
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{getStatusBadge(user.status)}</TableCell>
+                    <TableCell className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatLastActive(user.lastActive)}
+                    </TableCell>
+                    <TableCell>
+                      {editingUser === user.id ? (
+                        <Select value={editingRole} onValueChange={(value: "admin" | "manager" | "staff") => setEditingRole(value)}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLES?.map((role) => (
+                              <SelectItem key={role.value} value={role.value}>
+                                {role.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        getRoleBadge(user.role)
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {editingUser === user.id ? (
+                          <>
+                            <Button size="sm" onClick={() => handleUpdateRole(user.id)}>
+                              Save
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => setEditingUser(null)}>
+                              Cancel
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => {
+                                setEditingUser(user.id)
+                                setEditingRole(user.role)
+                              }}
+                              disabled={user.isCurrentUser}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleRemoveUser(user.id)}
+                              disabled={user.isCurrentUser}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+        </div>
+      </div>
+    </div>
+  )
+}

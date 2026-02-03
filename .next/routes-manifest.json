@@ -1,0 +1,176 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/workshop",
+      "regex": "^/api/workshop(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workshop(?:/)?$"
+    },
+    {
+      "page": "/api/workshop/seed",
+      "regex": "^/api/workshop/seed(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workshop/seed(?:/)?$"
+    },
+    {
+      "page": "/data-inputs",
+      "regex": "^/data\\-inputs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/data\\-inputs(?:/)?$"
+    },
+    {
+      "page": "/efficiency-analysis",
+      "regex": "^/efficiency\\-analysis(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/efficiency\\-analysis(?:/)?$"
+    },
+    {
+      "page": "/gross-profit-target",
+      "regex": "^/gross\\-profit\\-target(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/gross\\-profit\\-target(?:/)?$"
+    },
+    {
+      "page": "/settings",
+      "regex": "^/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings(?:/)?$"
+    },
+    {
+      "page": "/settings/branch",
+      "regex": "^/settings/branch(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings/branch(?:/)?$"
+    },
+    {
+      "page": "/settings/company",
+      "regex": "^/settings/company(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings/company(?:/)?$"
+    },
+    {
+      "page": "/settings/profile",
+      "regex": "^/settings/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings/profile(?:/)?$"
+    },
+    {
+      "page": "/settings/users",
+      "regex": "^/settings/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/settings/users(?:/)?$"
+    },
+    {
+      "page": "/setup-wizard",
+      "regex": "^/setup\\-wizard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/setup\\-wizard(?:/)?$"
+    },
+    {
+      "page": "/simulator",
+      "regex": "^/simulator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/simulator(?:/)?$"
+    },
+    {
+      "page": "/tools",
+      "regex": "^/tools(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools(?:/)?$"
+    },
+    {
+      "page": "/tools/corporation-tax-calculator",
+      "regex": "^/tools/corporation\\-tax\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/corporation\\-tax\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/tools/dividend-tax-calculator",
+      "regex": "^/tools/dividend\\-tax\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/dividend\\-tax\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/tools/labour-rate-calculator",
+      "regex": "^/tools/labour\\-rate\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/labour\\-rate\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/tools/loan-calculator",
+      "regex": "^/tools/loan\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/loan\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/tools/margin-calculator",
+      "regex": "^/tools/margin\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/margin\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/tools/vat-calculator",
+      "regex": "^/tools/vat\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools/vat\\-calculator(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [
+    "static/chunks/034cf__ignored_next_dist_build_polyfills_polyfill-nomodule.js"
+  ],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_fe7c5b7f._.js",
+    "static/chunks/034cf__ignored_next_dist_compiled_react-dom_d1ce2bbd._.js",
+    "static/chunks/034cf__ignored_next_dist_compiled_react-server-dom-turbopack_383d50d1._.js",
+    "static/chunks/034cf__ignored_next_dist_compiled_next-devtools_index_bcb12308.js",
+    "static/chunks/034cf__ignored_next_dist_compiled_fbae55b5._.js",
+    "static/chunks/034cf__ignored_next_dist_client_bbecac49._.js",
+    "static/chunks/034cf__ignored_next_dist_396b149a._.js",
+    "static/chunks/node_modules_@swc_helpers_cjs_d80fb378._.js",
+    "static/chunks/Workshop-Profit-Pilot_apps_web_a0ff3932._.js",
+    "static/chunks/turbopack-Workshop-Profit-Pilot_apps_web_62e02673._.js"
+  ],
+  "pages": {},
+  "ampFirstPages": []
+}

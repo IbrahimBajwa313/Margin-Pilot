@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/tools/vat-calculator/page": "app/(dashboard)/tools/vat-calculator/page.js"
+}

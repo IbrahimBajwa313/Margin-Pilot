@@ -1,0 +1,7 @@
+module.exports = [
+"[project]/Workshop-Profit-Pilot/apps/web/.next-internal/server/app/(dashboard)/data-inputs/page/actions.js [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__, module, exports) => {
+
+}),
+];
+
+//# sourceMappingURL=0a33e_web__next-internal_server_app_%28dashboard%29_data-inputs_page_actions_86500295.js.map

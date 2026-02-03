@@ -1,0 +1,63 @@
+
+> @workshop/web@0.1.0 build C:\Users\Administrator\Desktop\Ibrahim\Jen Projects\Workshop-Profit-Pilot-main\apps\web
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\Administrator\Desktop\Ibrahim\Jen Projects\Workshop-Profit-Pilot-main\pnpm-lock.yaml as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\Administrator\Desktop\Ibrahim\Jen Projects\Workshop-Profit-Pilot-main\apps\web\pnpm-lock.yaml
+
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./apps/web/lib/db.ts:2:1
+Module not found: Can't resolve 'mongoose'
+[0m [90m 1 |[39m
+[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m mongoose [36mfrom[39m [32m"mongoose"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3 |[39m
+ [90m 4 |[39m [36mconst[39m [33mMONGODB_URI[39m [33m=[39m process[33m.[39menv[33m.[39m[33mMONGODB_URI[39m[33m;[39m
+ [90m 5 |[39m[0m
+
+
+
+Import trace:
+  App Route:
+    ./apps/web/lib/db.ts
+    ./apps/web/app/api/workshop/route.ts
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./apps/web/lib/models/Workshop.ts:2:1
+Module not found: Can't resolve 'mongoose'
+[0m [90m 1 |[39m
+[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m mongoose[33m,[39m { [33mSchema[39m } [36mfrom[39m [32m"mongoose"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3 |[39m [36mimport[39m { type [33mWorkshopData[39m } [36mfrom[39m [32m"@workshop/shared"[39m[33m;[39m
+ [90m 4 |[39m
+ [90m 5 |[39m [36mconst[39m [33mExpenseSchema[39m [33m=[39m [36mnew[39m [33mSchema[39m({[0m
+
+
+
+Import trace:
+  App Route:
+    ./apps/web/lib/models/Workshop.ts
+    ./apps/web/app/api/workshop/route.ts
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./apps/web/lib/db.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./apps/web/lib/models/Workshop.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+ ELIFECYCLE  Command failed with exit code 1.
