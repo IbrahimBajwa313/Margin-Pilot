@@ -42,7 +42,7 @@ export function FinancialSummary() {
         <p className="text-xs text-muted-foreground mt-1">Data setup status and key metrics</p>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {categories.map((cat, idx) => (
             <div key={idx} className="p-3 rounded-lg bg-muted/50 border border-border">
               <p className="text-xs text-muted-foreground mb-2">{cat.label}</p>

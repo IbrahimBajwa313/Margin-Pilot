@@ -17,7 +17,7 @@ export function KPICard({ title, value, subtitle, badge, trend, className = "" }
         <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="text-3xl font-bold text-foreground bg-gradient-to-br from-foreground to-foreground/80 bg-clip-text group-hover:from-primary group-hover:to-accent transition-all duration-300">{value}</div>
+        <div className="text-2xl lg:text-3xl font-bold text-foreground bg-gradient-to-br from-foreground to-foreground/80 bg-clip-text group-hover:from-primary group-hover:to-accent transition-all duration-300">{value}</div>
         {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
         {badge && <div className="pt-2">{badge}</div>}
       </CardContent>

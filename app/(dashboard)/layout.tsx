@@ -12,17 +12,27 @@ export default function DashboardLayout({
   children: React.ReactNode
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar (sticky on desktop: in flow, content gets remaining space) */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+        isMobileOpen={isMobileMenuOpen}
+        setIsMobileOpen={setIsMobileMenuOpen}
+      />
 
       {/* Main Content Area - flex-1 so it fills space next to sidebar; no margin needed with sticky */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0 transition-all duration-300 ease-in-out">
         {/* Spacer: reserves height in flow so fixed header doesn't overlap content (h-14 md:h-16 matches TopHeader) */}
         <div className="h-14 md:h-16 shrink-0" aria-hidden="true" />
-        <TopHeader isSidebarOpen={isSidebarOpen} />
+        <TopHeader
+          isSidebarOpen={isSidebarOpen}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+          isMobileMenuOpen={isMobileMenuOpen}
+        />
 
         {/* Desktop Sidebar Open Button (only when closed) */}
         {!isSidebarOpen && (

@@ -76,7 +76,7 @@ export default function ToolsPage() {
 
       <section>
         <h2 className="text-lg font-semibold text-foreground mb-4">Business Calculators</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {BUSINESS_CALCULATORS.map((tool) => {
             const Icon = tool.icon
             return (
@@ -110,7 +110,7 @@ export default function ToolsPage() {
 
       <section>
         <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">UK Tax Calculators</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {UK_TAX_CALCULATORS.map((tool) => {
             const Icon = tool.icon
             return (

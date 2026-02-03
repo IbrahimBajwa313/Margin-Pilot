@@ -212,12 +212,12 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 dark:from-background dark:via-background dark:to-primary/10 flex items-center justify-center p-4">
-      <Card className="w-full max-w-xl bg-card/95 backdrop-blur-xl shadow-2xl border-border/50 rounded-2xl p-10">
-        <CardHeader className="space-y-4 text-center">
+    <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-gradient-to-br from-background via-background to-primary/5 dark:from-background dark:via-background dark:to-primary/10 flex items-center justify-center p-3 sm:p-4 py-6 sm:py-8">
+      <Card className="w-full max-w-xl min-w-0 bg-card/95 backdrop-blur-xl shadow-2xl border-border/50 rounded-2xl p-4 sm:p-6 md:p-10 mx-auto overflow-x-hidden overflow-y-auto max-h-[100dvh]">
+        <CardHeader className="space-y-3 md:space-y-4 text-center px-0">
           {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-48 h-20">
+          <div className="flex justify-center mb-4 md:mb-6">
+            <div className="relative w-40 h-14 sm:w-44 sm:h-16 md:w-48 md:h-20">
               <img
                 src="/logo for light screen.png"
                 alt="MarginPilot Logo"
@@ -232,7 +232,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
           </div>
 
           <div className="space-y-2">
-            <CardTitle className="text-2xl font-bold text-foreground">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
               Create Account
             </CardTitle>
             <CardDescription className="text-muted-foreground text-sm">
@@ -241,11 +241,11 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
           </div>
         </CardHeader>
 
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+        <form onSubmit={handleSubmit} className="min-w-0">
+          <CardContent className="space-y-3 md:space-y-4 px-0 min-w-0 overflow-x-hidden">
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 min-w-0">
+              <div className="space-y-2 min-w-0">
                 <Label htmlFor="firstName" className="text-slate-700 dark:text-slate-300">First Name</Label>
                 <Input
                   id="firstName"
@@ -256,7 +256,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                     setFormData(prev => ({ ...prev, firstName: e.target.value }))
                     if (errors.firstName) setErrors(prev => ({ ...prev, firstName: "" }))
                   }}
-                  className={`h-12 rounded-lg border-border bg-input focus:ring-2 focus:ring-primary/20 focus:border-primary/50 ${errors.firstName ? 'border-destructive' : ''}`}
+                  className={`h-12 w-full min-w-0 rounded-lg border-border bg-input focus:ring-2 focus:ring-primary/20 focus:border-primary/50 ${errors.firstName ? 'border-destructive' : ''}`}
                   required
                 />
                 {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
@@ -272,7 +272,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                     setFormData(prev => ({ ...prev, lastName: e.target.value }))
                     if (errors.lastName) setErrors(prev => ({ ...prev, lastName: "" }))
                   }}
-                  className={`h-12 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.lastName ? 'border-destructive' : ''}`}
+                  className={`h-12 w-full min-w-0 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.lastName ? 'border-destructive' : ''}`}
                   required
                 />
                 {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
@@ -280,7 +280,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
             </div>
 
             {/* Workspace Name */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0">
               <Label htmlFor="workspaceName" className="text-slate-700 dark:text-slate-300">Workspace Name</Label>
               <Input
                 id="workspaceName"
@@ -291,17 +291,17 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                   setFormData(prev => ({ ...prev, workspaceName: e.target.value }))
                   if (errors.workspaceName) setErrors(prev => ({ ...prev, workspaceName: "" }))
                 }}
-                className={`h-12 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.workspaceName ? 'border-destructive' : ''}`}
+                className={`h-12 w-full min-w-0 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.workspaceName ? 'border-destructive' : ''}`}
                 required
               />
               {errors.workspaceName && <p className="text-xs text-destructive">{errors.workspaceName}</p>}
             </div>
 
             {/* Email */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0">
               <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="relative min-w-0">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground shrink-0 pointer-events-none" />
                 <Input
                   id="email"
                   type="email"
@@ -311,7 +311,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                     setFormData(prev => ({ ...prev, email: e.target.value }))
                     if (errors.email) setErrors(prev => ({ ...prev, email: "" }))
                   }}
-                  className={`h-12 pl-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.email ? 'border-destructive' : ''}`}
+                  className={`h-12 w-full min-w-0 pl-10 pr-3 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.email ? 'border-destructive' : ''}`}
                   required
                 />
               </div>
@@ -319,10 +319,10 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0">
               <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="relative min-w-0">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground shrink-0 pointer-events-none" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -333,7 +333,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                     handlePasswordChange(e.target.value)
                     if (errors.password) setErrors(prev => ({ ...prev, password: "" }))
                   }}
-                  className={`h-12 pl-10 pr-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.password ? 'border-destructive' : ''}`}
+                  className={`h-12 w-full min-w-0 pl-10 pr-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.password ? 'border-destructive' : ''}`}
                   required
                 />
                 <Button
@@ -349,7 +349,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
               {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
 
               {/* Password Requirements */}
-              <div className="space-y-1 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs min-w-0">
                 <div className="flex items-center gap-2">
                   {passwordValidation.length ? (
                     <Check className="h-3 w-3 text-success" />
@@ -396,7 +396,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                   ) : (
                     <X className="h-3 w-3 text-destructive" />
                   )}
-                  <span className={passwordValidation.special ? "text-success" : "text-slate-500"}>
+                  <span className={`min-w-0 break-words ${passwordValidation.special ? "text-success" : "text-slate-500"}`}>
                     One special character (!@#$%^&*)
                   </span>
                 </div>
@@ -404,10 +404,10 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
             </div>
 
             {/* Confirm Password */}
-            <div className="space-y-2">
+            <div className="space-y-2 min-w-0">
               <Label htmlFor="confirmPassword" className="text-slate-700 dark:text-slate-300">Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="relative min-w-0">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground shrink-0 pointer-events-none" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
@@ -417,7 +417,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                     setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))
                     if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: "" }))
                   }}
-                  className={`h-12 pl-10 pr-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                  className={`h-12 w-full min-w-0 pl-10 pr-10 rounded-lg border-slate-200 focus:ring-2 focus:ring-teal-500 ${errors.confirmPassword ? 'border-destructive' : ''}`}
                   required
                 />
                 <Button
@@ -434,33 +434,35 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
             </div>
 
             {/* Terms */}
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="terms"
-                checked={termsAccepted}
-                onCheckedChange={(checked) => {
-                  setTermsAccepted(checked === true)
-                  if (errors.terms) setErrors(prev => ({ ...prev, terms: "" }))
-                }}
-                className="mt-0.5 h-5 w-5 text-primary focus:ring-primary rounded border-border"
-              />
-              <div className="space-y-1 ml-3">
-                <Label htmlFor="terms" className="text-sm text-foreground leading-relaxed">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:space-x-2 min-w-0">
+              <div className="flex items-start gap-2 min-w-0 flex-1">
+                <Checkbox
+                  id="terms"
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => {
+                    setTermsAccepted(checked === true)
+                    if (errors.terms) setErrors(prev => ({ ...prev, terms: "" }))
+                  }}
+                  className="mt-0.5 h-5 w-5 min-w-[1.25rem] shrink-0 text-primary focus:ring-primary rounded border-border"
+                />
+                <div className="space-y-1 sm:ml-0 min-w-0 flex-1">
+                <Label htmlFor="terms" className="text-sm text-foreground leading-relaxed break-words block">
                   I agree to the{" "}
-                  <Button type="button" variant="link" className="p-0 h-auto text-primary underline">
+                  <Button type="button" variant="link" className="p-0 h-auto text-primary underline inline break-words">
                     Terms of Service
                   </Button>{" "}
                   and{" "}
-                  <Button type="button" variant="link" className="p-0 h-auto text-primary underline">
+                  <Button type="button" variant="link" className="p-0 h-auto text-primary underline inline break-words">
                     Privacy Policy
                   </Button>
                 </Label>
                 {errors.terms && <p className="text-xs text-destructive">{errors.terms}</p>}
+                </div>
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4 pt-6">
+          <CardFooter className="flex flex-col space-y-4 pt-4 md:pt-6 px-0">
             <Button
               type="submit"
               className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/30"

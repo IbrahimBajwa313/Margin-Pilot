@@ -30,10 +30,15 @@ import { useAuth } from "@/lib/auth-context"
 interface SidebarProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
+  /** Controlled mobile open state (e.g. from header menu button). If not provided, uses internal state. */
+  isMobileOpen?: boolean
+  setIsMobileOpen?: (open: boolean) => void
 }
 
-export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen, setIsMobileOpen: setControlledMobileOpen }: SidebarProps) {
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false)
+  const isMobileOpen = controlledMobileOpen ?? internalMobileOpen
+  const setIsMobileOpen = setControlledMobileOpen ?? setInternalMobileOpen
   const { userProfile, logout } = useAuth()
   const pathname = usePathname()
 
@@ -85,27 +90,28 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle */}
+      {/* Mobile toggle - top-left (only when sidebar is closed or for quick access) */}
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden fixed top-4 left-4 z-40"
+        className="lg:hidden fixed top-4 left-4 z-[55] h-10 w-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:bg-accent/50"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
+        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
       >
         {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </Button>
 
       {/* Sidebar: sticky on desktop (in flow), fixed overlay on mobile */}
       <aside
-        className={`z-40 h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out flex flex-col shadow-xl backdrop-blur-xl overflow-hidden
+        className={`h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out flex flex-col shadow-xl backdrop-blur-xl overflow-hidden
           fixed left-0 top-0 lg:sticky lg:top-0 lg:self-start
-          ${isOpen ? "w-64" : "w-0"} 
-          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+          w-64 ${isOpen ? "lg:w-64" : "lg:w-0"}
+          ${isMobileOpen ? "z-[55] translate-x-0" : "z-40 -translate-x-full"} lg:z-[60] lg:translate-x-0`}
       >
-        {/* Header / Logo (fixed at top of sidebar) */}
-        <div className="flex h-16 items-center px-4 border-b border-sidebar-border shrink-0 bg-sidebar/50 backdrop-blur-sm">
+        {/* Header / Logo (fixed at top of sidebar) - higher z on desktop so logo sits above navbar */}
+        <div className="flex h-16 items-center px-4 lg:pr-5 border-b border-sidebar-border shrink-0 bg-sidebar/50 backdrop-blur-sm">
           <div className="flex items-center justify-between w-full min-w-0">
-            <div className={`flex items-center gap-3 transition-opacity duration-200 min-w-0 flex-1 ${isOpen ? "opacity-100" : "opacity-0"}`}>
+            <div className={`flex items-center gap-3 transition-opacity duration-200 min-w-0 flex-1 lg:pr-3 ${isOpen ? "opacity-100" : "opacity-0"}`}>
               <div className="relative w-40 h-10 rounded-lg overflow-hidden shrink-0">
                 <Image
                   src="/logo for light screen.png"
@@ -203,7 +209,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Overlay for mobile: fades background, blocks scroll & interaction until sidebar is closed */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-20 lg:hidden bg-black/60 backdrop-blur-sm touch-none"
+          className="fixed inset-0 z-[54] lg:hidden bg-black/60 backdrop-blur-sm touch-none"
           onClick={() => setIsMobileOpen(false)}
           aria-hidden="true"
         />
