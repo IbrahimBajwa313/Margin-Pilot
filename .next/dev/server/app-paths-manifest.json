@@ -1,5 +1,3 @@
 {
-  "/(dashboard)/data-inputs/page": "app/(dashboard)/data-inputs/page.js",
-  "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/settings/profile/page": "app/(dashboard)/settings/profile/page.js"
+  "/(dashboard)/data-inputs/page": "app/(dashboard)/data-inputs/page.js"
 }

@@ -1185,6 +1185,10 @@
     visibility: hidden;
   }
 
+  .visible {
+    visibility: visible;
+  }
+
   .sr-only {
     clip-path: inset(50%);
     white-space: nowrap;
@@ -3347,6 +3351,18 @@
     padding-bottom: calc(var(--spacing) * 20);
   }
 
+  .pb-24 {
+    padding-bottom: calc(var(--spacing) * 24);
+  }
+
+  .pb-\[env\(safe-area-inset-bottom\,0\)\] {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .pb-\[max\(2rem\,env\(safe-area-inset-bottom\,2rem\)\)\] {
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 2rem));
+  }
+
   .pl-2 {
     padding-left: calc(var(--spacing) * 2);
   }
@@ -4567,6 +4583,18 @@
   @media (hover: hover) {
     .hover\:bg-sidebar-accent:hover {
       background-color: var(--sidebar-accent);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-sidebar-accent\/50:hover {
+      background-color: var(--sidebar-accent);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-sidebar-accent\/50:hover {
+        background-color: color-mix(in oklab, var(--sidebar-accent) 50%, transparent);
+      }
     }
   }
 
@@ -6455,6 +6483,12 @@
   }
 
   @media (min-width: 64rem) {
+    .lg\:pointer-events-none {
+      pointer-events: none;
+    }
+  }
+
+  @media (min-width: 64rem) {
     .lg\:sticky {
       position: sticky;
     }
@@ -6469,12 +6503,6 @@
   @media (min-width: 64rem) {
     .lg\:top-8 {
       top: calc(var(--spacing) * 8);
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .lg\:z-50 {
-      z-index: 50;
     }
   }
 
@@ -6608,6 +6636,12 @@
   }
 
   @media (min-width: 64rem) {
+    .lg\:rounded-none {
+      border-radius: 0;
+    }
+  }
+
+  @media (min-width: 64rem) {
     .lg\:p-8 {
       padding: calc(var(--spacing) * 8);
     }
@@ -6622,6 +6656,18 @@
   @media (min-width: 64rem) {
     .lg\:pr-5 {
       padding-right: calc(var(--spacing) * 5);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:pb-0 {
+      padding-bottom: calc(var(--spacing) * 0);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:pb-4 {
+      padding-bottom: calc(var(--spacing) * 4);
     }
   }
 
@@ -6647,6 +6693,14 @@
     .lg\:text-3xl {
       font-size: var(--text-3xl);
       line-height: var(--tw-leading, var(--text-3xl--line-height));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    @media (hover: hover) {
+      .lg\:hover\:bg-transparent:hover {
+        background-color: #0000;
+      }
     }
   }
 

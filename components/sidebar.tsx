@@ -184,8 +184,8 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
           })}
         </nav>
 
-        {/* Footer */}
-        <div className={`p-4 border-t border-sidebar-border space-y-3 transition-all duration-200 bg-sidebar/50 backdrop-blur-sm ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Footer - extra bottom padding on mobile so user + Log Out stay above browser home bar */}
+        <div className={`p-4 pb-24 lg:pb-4 border-t border-sidebar-border space-y-3 transition-all duration-200 bg-sidebar/50 backdrop-blur-sm shrink-0 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex items-center gap-3 px-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/30 flex items-center justify-center ring-2 ring-primary/10">
               <span className="text-xs font-bold text-primary dark:text-primary">{getUserInitials()}</span>
