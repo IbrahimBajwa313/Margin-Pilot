@@ -1,7 +1,7 @@
 "use client"
 
 import { useAppContext } from "@/lib/app-context"
-import { getEfficiencyColor, getEfficiencyLabel } from "@workshop/shared"
+import { getEfficiencyColor, getEfficiencyLabel } from "@/components/shared"
 
 export function useEfficiency() {
   const { efficiency } = useAppContext()

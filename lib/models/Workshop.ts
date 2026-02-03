@@ -1,6 +1,6 @@
 
 import mongoose, { Schema } from "mongoose";
-import { type WorkshopData } from "@workshop/shared";
+import { type WorkshopData } from "@/components/shared";
 
 const ExpenseSchema = new Schema({
     id: String,

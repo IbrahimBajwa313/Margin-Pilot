@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import { calculateEfficiency, type EfficiencyCalculation, type WorkshopData, type ExpenseItem, type LoanItem, type StaffMember, type Technician } from "@workshop/shared"
+import { calculateEfficiency, type EfficiencyCalculation, type WorkshopData, type ExpenseItem, type LoanItem, type StaffMember, type Technician } from "@/components/shared"
 
 interface AppContextType {
   data: WorkshopData
