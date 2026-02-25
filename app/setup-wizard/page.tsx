@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress"
 import { Building2, MapPin, Calculator, ArrowRight, ArrowLeft, Check } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { Branch, Calculation } from "@/lib/auth-context"
+import { useAppContext } from "@/lib/app-context"
 
 const CURRENCIES = [
   { value: "GBP", label: "British Pound (£)" },
@@ -25,6 +26,7 @@ const CURRENCIES = [
 export default function SetupWizard() {
   const router = useRouter()
   const { userProfile, updateProfile } = useAuth()
+  const { refreshWorkshopData } = useAppContext()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -35,8 +37,15 @@ export default function SetupWizard() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Form states
-  const [companyName, setCompanyName] = useState(userProfile?.company.name || "")
+  // Invited members belong to an existing workspace — send them to dashboard, not setup wizard
+  useEffect(() => {
+    if (userProfile?.companyOwnerEmail) {
+      router.replace("/")
+    }
+  }, [userProfile?.companyOwnerEmail, router])
+
+  // Form states (invited users have no company; owners may have company from profile)
+  const [companyName, setCompanyName] = useState(userProfile?.company?.name ?? "")
   const [branchData, setBranchData] = useState({
     name: "",
     address: "",
@@ -51,6 +60,15 @@ export default function SetupWizard() {
   const [calculationName, setCalculationName] = useState("Main")
 
   const progress = (currentStep / 3) * 100
+
+  // Don't render the wizard for invited members; useEffect above redirects them to dashboard
+  if (userProfile?.companyOwnerEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <WorkshopLoader size="medium" loadingText="Taking you to your workspace..." />
+      </div>
+    )
+  }
 
   const handleNext = async () => {
     if (currentStep < 3) {
@@ -74,7 +92,13 @@ export default function SetupWizard() {
     setIsSubmitting(true)
 
     try {
-      // Create new branch
+      // Coerce to numbers so we never send strings (input values can be string in some environments)
+      const rawSize = branchData.facilities.size
+      const rawParking = branchData.facilities.parking
+      const rawRamps = branchData.facilities.ramps
+      const size = Math.max(0, Number(rawSize) || 0)
+      const parking = Math.max(0, Number(rawParking) || 0)
+      const ramps = Math.max(0, Number(rawRamps) || 0)
       const newBranch: Branch = {
         id: generateId("branch"),
         name: branchData.name,
@@ -82,11 +106,7 @@ export default function SetupWizard() {
         address: branchData.address || undefined,
         postcode: branchData.postcode || undefined,
         currency: branchData.currency,
-        facilities: {
-          size: branchData.facilities.size,
-          parking: branchData.facilities.parking,
-          ramps: branchData.facilities.ramps
-        },
+        facilities: { size, parking, ramps },
         calculations: []
       }
 
@@ -102,20 +122,22 @@ export default function SetupWizard() {
 
       newBranch.calculations.push(newCalculation)
 
-      // Update user profile
+      // Update user profile and persist to DB before redirect so workshop seed reads correct facilities
       const updatedProfile = {
         ...userProfile,
         company: {
-          ...userProfile.company,
+          ...(userProfile.company || {}),
           name: companyName,
           branches: [newBranch]
         },
         hasCompletedSetup: true
       }
 
-      updateProfile(updatedProfile)
+      await updateProfile(updatedProfile)
 
-      // Redirect to dashboard
+      // Refetch workshop so dashboard shows updated facilities (workshopSize, ramps) without a full reload
+      await refreshWorkshopData()
+
       router.push("/")
     } catch (error) {
       console.error("Setup failed:", error)
@@ -219,11 +241,16 @@ export default function SetupWizard() {
                     <Input
                       id="workshopSize"
                       type="number"
-                      value={branchData.facilities.size || ""}
-                      onChange={(e) => setBranchData(prev => ({ 
-                        ...prev, 
-                        facilities: { ...prev.facilities, size: parseInt(e.target.value) || 0 }
-                      }))}
+                      min={0}
+                      value={branchData.facilities.size === 0 ? "" : branchData.facilities.size}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        const num = v === "" ? 0 : Math.max(0, Number(v))
+                        setBranchData(prev => ({ 
+                          ...prev, 
+                          facilities: { ...prev.facilities, size: Number.isNaN(num) ? 0 : num }
+                        }))
+                      }}
                       placeholder="1000"
                       className="h-11"
                     />
@@ -235,11 +262,16 @@ export default function SetupWizard() {
                       <Input
                         id="carParkSpaces"
                         type="number"
-                        value={branchData.facilities.parking || ""}
-                        onChange={(e) => setBranchData(prev => ({ 
-                          ...prev, 
-                          facilities: { ...prev.facilities, parking: parseInt(e.target.value) || 0 }
-                        }))}
+                        min={0}
+                        value={branchData.facilities.parking === 0 ? "" : branchData.facilities.parking}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          const num = v === "" ? 0 : Math.max(0, Number(v))
+                          setBranchData(prev => ({ 
+                            ...prev, 
+                            facilities: { ...prev.facilities, parking: Number.isNaN(num) ? 0 : num }
+                          }))
+                        }}
                         placeholder="10"
                         className="h-11"
                       />
@@ -250,11 +282,16 @@ export default function SetupWizard() {
                       <Input
                         id="ramps"
                         type="number"
-                        value={branchData.facilities.ramps || ""}
-                        onChange={(e) => setBranchData(prev => ({ 
-                          ...prev, 
-                          facilities: { ...prev.facilities, ramps: parseInt(e.target.value) || 0 }
-                        }))}
+                        min={0}
+                        value={branchData.facilities.ramps === 0 ? "" : branchData.facilities.ramps}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          const num = v === "" ? 0 : Math.max(0, Number(v))
+                          setBranchData(prev => ({ 
+                            ...prev, 
+                            facilities: { ...prev.facilities, ramps: Number.isNaN(num) ? 0 : num }
+                          }))
+                        }}
                         placeholder="2"
                         className="h-11"
                       />

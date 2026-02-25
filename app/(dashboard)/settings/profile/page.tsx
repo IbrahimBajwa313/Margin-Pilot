@@ -65,16 +65,21 @@ export default function MySettings() {
     beginnerMode: userProfile?.preferences?.beginnerMode ?? true,
   })
 
-  const companyAssociations = [
-    {
-      id: userProfile.company.id,
-      name: userProfile.company.name,
-      role: "Admin",
-      joinedDate: userProfile.createdAt,
-      isDefault: true,
-      logo: userProfile.company.logo
-    }
-  ]
+  // Invited users have effectiveCompany (owner's company); owners have company
+  const company = userProfile.effectiveCompany ?? userProfile.company
+  const role = userProfile.effectiveRole ?? "admin"
+  const companyAssociations = company
+    ? [
+        {
+          id: company.id ?? "default",
+          name: company.name ?? "Workspace",
+          role: role.charAt(0).toUpperCase() + role.slice(1),
+          joinedDate: userProfile.createdAt ?? new Date().toISOString(),
+          isDefault: true,
+          logo: company.logo
+        }
+      ]
+    : []
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

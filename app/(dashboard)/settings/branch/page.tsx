@@ -23,6 +23,7 @@ import {
   Gauge
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { useAppContext } from "@/lib/app-context"
 import { AccessDenied } from "@/components/access-denied"
 import { toast } from "sonner"
 
@@ -37,6 +38,7 @@ const CURRENCIES = [
 
 export default function BranchSettings() {
   const { userProfile, updateProfile } = useAuth()
+  const { updateData } = useAppContext()
   const [isEditing, setIsEditing] = useState(false)
   const role = userProfile?.effectiveRole || "admin"
   const canAccess = role === "admin" || role === "manager"
@@ -83,11 +85,11 @@ export default function BranchSettings() {
     ? (formData.facilities.parking / formData.facilities.ramps).toFixed(1)
     : "N/A"
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!userProfile) return
 
-    const updatedBranches = company.branches.map(b => 
-      b.id === branch.id 
+    const updatedBranches = company.branches.map(b =>
+      b.id === branch.id
         ? {
             ...branch,
             name: formData.name,
@@ -101,15 +103,21 @@ export default function BranchSettings() {
         : b
     )
 
-    updateProfile({
-      company: {
-        ...company,
-        branches: updatedBranches
-      }
-    })
-
-    setIsEditing(false)
-    toast.success("Branch settings saved successfully!")
+    try {
+      await updateProfile({
+        company: {
+          ...company,
+          branches: updatedBranches
+        }
+      })
+      const size = Number(formData.facilities.size) || 0
+      const ramps = Number(formData.facilities.ramps) || 0
+      updateData({ workshopSize: size, ramps })
+      setIsEditing(false)
+      toast.success("Branch settings saved successfully!")
+    } catch {
+      toast.error("Failed to save branch settings.")
+    }
   }
 
   const handleCancel = () => {

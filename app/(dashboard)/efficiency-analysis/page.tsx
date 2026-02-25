@@ -147,15 +147,19 @@ export default function EfficiencyAnalysisPage() {
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span>&lt;60% Healthy</span>
+                <span>&lt;70% Healthy</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                <span>60-85% Caution</span>
+                <span>70-85% On Par</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-amber-600"></div>
+                <span>85-100% High Stress</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <span>&gt;85% Critical</span>
+                <span>&gt;100% Impossible</span>
               </div>
             </div>
           </div>

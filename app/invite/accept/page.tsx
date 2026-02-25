@@ -16,7 +16,7 @@ function InviteAcceptContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")?.trim() || ""
-  const { isAuthenticated, userProfile, logout } = useAuth()
+  const { isAuthenticated, userProfile, logout, refreshProfile } = useAuth()
 
   const [validateLoading, setValidateLoading] = useState(!!token)
   const [acceptLoading, setAcceptLoading] = useState(false)
@@ -59,18 +59,19 @@ function InviteAcceptContent() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then(async (data) => {
         if (data.success) {
           setAccepted(true)
           toast.success(`You've joined ${data.companyName}!`)
-          setTimeout(() => router.replace("/"), 2000)
+          await refreshProfile()
+          setTimeout(() => router.replace("/"), 1500)
         } else {
           setError(data.error || "Failed to accept.")
         }
       })
       .catch(() => setError("Failed to accept invitation."))
       .finally(() => setAcceptLoading(false))
-  }, [isAuthenticated, userProfile, token, inviteEmail, accepted, acceptLoading, router])
+  }, [isAuthenticated, userProfile, token, inviteEmail, accepted, acceptLoading, router, refreshProfile])
 
   const saveTokenAndGoSignIn = () => {
     if (token && typeof window !== "undefined") {

@@ -82,7 +82,7 @@ export interface UserProfile {
 interface AuthContextType {
   isAuthenticated: boolean
   userProfile: UserProfile | null
-  login: (profile: UserProfile) => void
+  login: (profile: UserProfile) => Promise<void>
   logout: () => void
   updateProfile: (updates: Partial<UserProfile>) => void
   refreshProfile: () => Promise<void>
@@ -128,10 +128,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [])
 
-  function login(profile: UserProfile) {
+  async function login(profile: UserProfile) {
     setUserProfile(profile)
     setIsAuthenticated(true)
     localStorage.setItem(SESSION_KEY, 'true')
+    // Refetch full profile so invited users get effectiveRole + effectiveCompany (shared workspace)
+    const res = await fetch(PROFILE_API, fetchOpts)
+    if (res.ok) {
+      const data = await res.json()
+      setUserProfile(data)
+    }
   }
 
   function logout() {

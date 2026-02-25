@@ -67,12 +67,32 @@ export async function POST(req: Request) {
             const updates = { ...restUpdates } as Record<string, unknown>;
             if (company !== undefined && !canWriteCompany) delete updates.company;
             if (company !== undefined && canWriteCompany) {
+                const companyToSave = company && typeof company === "object"
+                    ? {
+                        ...company,
+                        branches: Array.isArray(company.branches)
+                            ? company.branches.map((b: Record<string, unknown>) => {
+                                if (!b.facilities || typeof b.facilities !== "object") return b;
+                                const f = b.facilities as Record<string, unknown>;
+                                return {
+                                    ...b,
+                                    facilities: {
+                                        ...f,
+                                        size: Math.max(0, Number(f.size) || 0),
+                                        ramps: Math.max(0, Number(f.ramps) || 0),
+                                        parking: Math.max(0, Number(f.parking) || 0),
+                                    },
+                                };
+                            })
+                            : company.branches,
+                    }
+                    : company;
                 if (effective?.role === "admin") {
-                    updates.company = company;
+                    updates.company = companyToSave;
                 } else if (effective?.role === "manager" && effective.ownerEmail) {
                     const ownerProfile = await UserProfile.findOne({ email: effective.ownerEmail });
                     if (ownerProfile) {
-                        (ownerProfile as any).company = company;
+                        (ownerProfile as any).company = companyToSave;
                         await ownerProfile.save();
                     }
                     delete updates.company;

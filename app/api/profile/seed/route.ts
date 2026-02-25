@@ -35,7 +35,7 @@ export async function POST() {
                         name: "Main Branch",
                         code: "MAIN",
                         currency: "EUR",
-                        facilities: { size: 5000, parking: 10, ramps: 4 },
+                        facilities: { size: 0, parking: 0, ramps: 0 },
                         calculations: [
                             {
                                 id: "calc_seed",

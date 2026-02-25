@@ -6,6 +6,7 @@ import { useAppContext } from "@/lib/app-context"
 import { useCurrency } from "@/hooks/use-currency"
 import {
   buildBusinessDataCsv,
+  buildBusinessDataXlsx,
   generatePdfReport,
   buildExternalExportJson,
   type ExportTargets,
@@ -58,6 +59,7 @@ export default function DataExportPage() {
 
   const [socialLoading, setSocialLoading] = useState(false)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [excelLoading, setExcelLoading] = useState(false)
   const [copiedExternal, setCopiedExternal] = useState(false)
   const [imageCopied, setImageCopied] = useState(false)
 
@@ -181,7 +183,27 @@ export default function DataExportPage() {
     }
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    setExcelLoading(true)
+    try {
+      const buffer = await buildBusinessDataXlsx(data, targets, efficiency, symbol)
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      })
+      const link = document.createElement("a")
+      link.download = `MarginPilot-Data-${new Date().toISOString().slice(0, 10)}.xlsx`
+      link.href = URL.createObjectURL(blob)
+      link.click()
+      URL.revokeObjectURL(link.href)
+      toast.success("Excel file downloaded (bold headings, chart-ready sheet)")
+    } catch (e) {
+      toast.error("Failed to export Excel. Try CSV.")
+    } finally {
+      setExcelLoading(false)
+    }
+  }
+
+  const handleExportCsv = () => {
     try {
       const csv = buildBusinessDataCsv(data, targets, symbol)
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" })
@@ -190,9 +212,9 @@ export default function DataExportPage() {
       link.href = URL.createObjectURL(blob)
       link.click()
       URL.revokeObjectURL(link.href)
-      toast.success("Data exported (open in Excel)")
+      toast.success("CSV downloaded (open in Excel)")
     } catch (e) {
-      toast.error("Failed to export data")
+      toast.error("Failed to export CSV")
     }
   }
 
@@ -378,24 +400,38 @@ export default function DataExportPage() {
               <div>
                 <CardTitle className="text-lg">Export business data</CardTitle>
                 <CardDescription>
-                  Download all tables as CSV (opens in Excel): expenses, marketing, loans, wages,
-                  technicians, and monthly targets.
+                  Download as Excel (.xlsx) with bold section headings and a chart-ready sheet, or as CSV.
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Badge variant="secondary" className="text-xs">
-              CSV · Excel-compatible
-            </Badge>
-            <Button
-              onClick={handleExportExcel}
-              variant="outline"
-              className="w-full gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export to CSV / Excel
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={handleExportExcel}
+                disabled={excelLoading}
+                variant="default"
+                className="gap-2"
+              >
+                {excelLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                {excelLoading ? "Preparing…" : "Export to Excel (.xlsx)"}
+              </Button>
+              <Button
+                onClick={handleExportCsv}
+                variant="outline"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export to CSV
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Excel: Summary sheet with bold headings; &quot;Monthly targets (chart)&quot; sheet has one table for a clean bar chart.
+            </p>
           </CardContent>
         </Card>
 

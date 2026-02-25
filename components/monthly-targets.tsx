@@ -24,17 +24,7 @@ export function MonthlyTargets() {
       return acc + (Number(item.hourlyPayRate || 0) * Number(item.billableHoursPerWeek || 0) * 4.33)
     }, 0) || 0
     
-    const total = fixedExpenses + marketing + loans + staff + technicians
-    console.log("MonthlyTargets | Total Monthly Expenses Calculation:", {
-      fixedExpenses,
-      marketing,
-      loans,
-      staff,
-      technicians,
-      total
-    })
-    
-    return total
+    return fixedExpenses + marketing + loans + staff + technicians
   }, [data])
 
   // Generate monthly data dynamically with live calculations - NEW Fixed Daily / Variable Monthly Model
@@ -54,16 +44,12 @@ export function MonthlyTargets() {
       { name: "December", workingDays: 22 }
     ]
 
-    const data = months.map(month => ({
+    return months.map(month => ({
       month: month.name,
       workingDays: month.workingDays,
       dailyTarget: calculatedTargets.standardDailyGpTarget, // Same for all months
       monthlyTarget: calculatedTargets.standardDailyGpTarget * month.workingDays // Variable monthly target
     }))
-
-    console.log("MonthlyTargets | Generated Monthly Data (Fixed Daily / Variable Monthly):", data.slice(0, 3)) // Log first 3 months for debugging
-
-    return data
   }, [calculatedTargets.standardDailyGpTarget])
 
   return (

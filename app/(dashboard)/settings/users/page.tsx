@@ -109,8 +109,10 @@ export default function CompanyUsers() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setInviteError((data as { error?: string }).error || "Failed to send invitation")
-        toast.error((data as { error?: string }).error || "Failed to send invitation")
+        const errMsg = (data as { error?: string }).error || "Failed to send invitation"
+        const domainsUrl = (data as { resendDomainsUrl?: string }).resendDomainsUrl
+        setInviteError(errMsg)
+        toast.error(errMsg, domainsUrl ? { action: { label: "Open Resend Domains", onClick: () => window.open(domainsUrl, "_blank") } } : undefined)
         return
       }
       setInviteEmail("")

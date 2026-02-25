@@ -8,8 +8,11 @@ import { getEffectiveOwnerAndRole } from "@/lib/role"
 import { Resend } from "resend"
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
+// Use a verified domain (e.g. invites@yourdomain.com) to send to any recipient.
+// With onboarding@resend.dev, Resend only allows sending to your own email.
 const INVITE_FROM = process.env.RESEND_INVITE_FROM || "MarginPilot <onboarding@resend.dev>"
 const INVITE_EXPIRY_DAYS = 7
+const RESEND_DOMAINS_URL = "https://resend.com/domains"
 
 function generateToken(): string {
   return randomBytes(32).toString("base64url")
@@ -104,6 +107,22 @@ export async function POST(req: Request) {
       })
       if (error) {
         console.error("Resend invite email error:", error)
+        const msg = typeof error === "object" && error !== null && "message" in error
+          ? String((error as { message?: unknown }).message)
+          : String(error)
+        const onlyOwnEmail =
+          /only send.*your own email|verify a domain|verify your domain/i.test(msg)
+        if (onlyOwnEmail) {
+          return NextResponse.json(
+            {
+              error:
+                "Resend only allows sending to your own email until you verify a domain. " +
+                "Add and verify your domain at resend.com/domains, then set RESEND_INVITE_FROM to an address on that domain (e.g. MarginPilot <invites@yourdomain.com>).",
+              resendDomainsUrl: RESEND_DOMAINS_URL,
+            },
+            { status: 403 }
+          )
+        }
         return NextResponse.json(
           { error: "Invite created but email failed to send. You can still share the accept link." },
           { status: 500 }

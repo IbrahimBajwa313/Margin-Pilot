@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, useRef } from "react"
+import { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { calculateEfficiency, type EfficiencyCalculation, type WorkshopData } from "@/components/shared"
+import { useAuth } from "@/lib/auth-context"
 
 const WORKSHOP_API = "/api/workshop"
 
@@ -49,6 +50,8 @@ interface AppContextType {
   isDark: boolean
   dataLoading: boolean
   dataError: string | null
+  /** Refetch workshop from server (e.g. after setup wizard saves profile so dashboard shows updated facilities) */
+  refreshWorkshopData: () => Promise<void>
   calculatedTargets: {
     totalMonthlyExpenses: number
     totalAnnualExpenses: number
@@ -89,6 +92,7 @@ function getInitialTheme(): boolean {
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth()
   const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -110,71 +114,74 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [dataError, setDataError] = useState<string | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load workshop data from API on mount (scoped to logged-in user via cookie); seed if empty
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        setDataError(null)
-        const res = await fetch(WORKSHOP_API, { credentials: "include" })
-        if (cancelled) return
-        if (res.status === 401) {
-          setDataLoading(false)
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("workshop_session_active")
-            window.location.href = "/"
-          }
-          return
-        }
-        if (res.status === 404) {
-          const seedRes = await fetch(`${WORKSHOP_API}/seed`, { method: "POST", credentials: "include" })
-          if (cancelled) return
-          if (!seedRes.ok) {
-            const err = await seedRes.json().catch(() => ({}))
-            setDataError(err?.error || "Failed to seed workshop")
-            setDataLoading(false)
-            return
-          }
-          const refetch = await fetch(WORKSHOP_API, { credentials: "include" })
-          if (cancelled) return
-          if (!refetch.ok) {
-            setDataError("Failed to load workshop after seed")
-            setDataLoading(false)
-            return
-          }
-          const json = await refetch.json()
-          setData(normalizeWorkshopResponse(json))
-          setDataLoading(false)
-          return
-        }
-        if (!res.ok) {
-          setDataError("Failed to load workshop data")
-          setDataLoading(false)
-          return
-        }
-        const json = await res.json()
-        setData(normalizeWorkshopResponse(json))
-      } catch (e) {
-        if (!cancelled) setDataError(e instanceof Error ? e.message : "Failed to load data")
-      } finally {
-        if (!cancelled) setDataLoading(false)
+  async function fetchWorkshopData(): Promise<boolean> {
+    const res = await fetch(WORKSHOP_API, { credentials: "include" })
+    if (res.status === 401) return false
+    if (res.status === 404) {
+      const seedRes = await fetch(`${WORKSHOP_API}/seed`, { method: "POST", credentials: "include" })
+      if (!seedRes.ok) {
+        const err = await seedRes.json().catch(() => ({}))
+        setDataError(err?.error || "Failed to seed workshop")
+        return false
       }
+      const refetch = await fetch(WORKSHOP_API, { credentials: "include" })
+      if (!refetch.ok) {
+        setDataError("Failed to load workshop after seed")
+        return false
+      }
+      const json = await refetch.json()
+      setData(normalizeWorkshopResponse(json))
+      return true
     }
-    load()
-    return () => { cancelled = true }
-  }, [])
+    if (!res.ok) {
+      setDataError("Failed to load workshop data")
+      return false
+    }
+    const json = await res.json()
+    setData(normalizeWorkshopResponse(json))
+    return true
+  }
 
-  // Persist to API when data changes (debounced)
+  const refreshWorkshopData = useCallback(async () => {
+    if (!isAuthenticated) return
+    setDataLoading(true)
+    setDataError(null)
+    try {
+      await fetchWorkshopData()
+    } catch (e) {
+      setDataError(e instanceof Error ? e.message : "Failed to load data")
+    } finally {
+      setDataLoading(false)
+    }
+  }, [isAuthenticated])
+
+  // Load workshop data only when authenticated; avoids 401 loop and refetches after login
   useEffect(() => {
-    if (dataLoading) return
+    if (!isAuthenticated) {
+      setDataLoading(false)
+      setDataError(null)
+      return
+    }
+    let cancelled = false
+    setDataLoading(true)
+    setDataError(null)
+    fetchWorkshopData()
+      .then(() => { if (!cancelled) setDataLoading(false) })
+      .catch(() => { if (!cancelled) setDataLoading(false) })
+    return () => { cancelled = true }
+  }, [isAuthenticated])
+
+  // Persist to API when data changes (debounced); only when authenticated. Send only workshop fields (no Mongo internals).
+  useEffect(() => {
+    if (!isAuthenticated || dataLoading) return
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     saveTimeoutRef.current = setTimeout(() => {
       saveTimeoutRef.current = null
-      const payload = { ...data }
+      const payload = buildWorkshopPayload(data)
       fetch(WORKSHOP_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), credentials: "include" }).catch(() => {})
     }, 600)
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current) }
-  }, [data, dataLoading])
+  }, [isAuthenticated, data, dataLoading])
 
   // Calculate targets based on current data - NEW Fixed Daily / Variable Monthly Model
   const calculateTargets = (currentData: WorkshopData) => {
@@ -205,15 +212,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Step D: Dashboard Metrics (Average Monthly)
     const averageMonthlyGpTarget = standardDailyGpTarget * averageMonthlyWorkingDays
 
-    console.log("Financial Logic | Fixed Daily / Variable Monthly Model:", {
-      totalMonthlyExpenses,
-      totalAnnualExpenses,
-      totalAnnualWorkingDays,
-      averageMonthlyWorkingDays,
-      standardDailyGpTarget,
-      averageMonthlyGpTarget
-    })
-
     return {
       totalMonthlyExpenses,
       totalAnnualExpenses,
@@ -224,8 +222,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const calculatedTargets = calculateTargets(data)
-  const efficiency = calculateEfficiency(data)
+  const calculatedTargets = useMemo(() => calculateTargets(data), [data])
+  const efficiency = useMemo(() => calculateEfficiency(data), [data])
 
   // Recalculate dailyActualStatus whenever todayActual or target changes
   useEffect(() => {
@@ -264,7 +262,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AppContext.Provider value={{ data, updateData, updateMonthDays, toggleTheme, isDark, dataLoading, dataError, calculatedTargets, efficiency }}>
+    <AppContext.Provider value={{ data, updateData, updateMonthDays, toggleTheme, isDark, dataLoading, dataError, refreshWorkshopData, calculatedTargets, efficiency }}>
       {children}
     </AppContext.Provider>
   )
@@ -276,6 +274,41 @@ export function useAppContext() {
     throw new Error("useAppContext must be used within AppProvider")
   }
   return context
+}
+
+/** Build payload for POST /api/workshop: only workshop fields, no Mongo internals. efficiencyRequired is computed on backend from inputs. */
+function buildWorkshopPayload(data: WorkshopData): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    avgLabourRate: data.avgLabourRate,
+    currentMonth: data.currentMonth,
+    workingDaysInMonth: data.workingDaysInMonth,
+    currentBranch: data.currentBranch,
+    currentScenario: data.currentScenario,
+    fixedExpensesTotal: data.fixedExpensesTotal,
+    marketingTotal: data.marketingTotal,
+    loansTotal: data.loansTotal,
+    staffTotal: data.staffTotal,
+    techniciansTotal: data.techniciansTotal,
+    estimatedMonthlyPartsProfitEuro: data.estimatedMonthlyPartsProfitEuro,
+    workingDaysPerMonth: data.workingDaysPerMonth,
+    monthlyWorkingDays: data.monthlyWorkingDays,
+    ownerProfitGoal: data.ownerProfitGoal,
+    fixedExpenses: data.fixedExpenses,
+    marketing: data.marketing,
+    loans: data.loans,
+    staff: data.staff,
+    technicians: data.technicians,
+    workshopSize: data.workshopSize,
+    ramps: data.ramps,
+    techs: data.techs,
+    monthlyData: data.monthlyData,
+    todayActual: data.todayActual,
+    dailyActualStatus: data.dailyActualStatus,
+    userPreferences: data.userPreferences,
+    efficiencyCalendar: data.efficiencyCalendar,
+    isStarterTemplate: data.isStarterTemplate,
+  }
+  return payload
 }
 
 function normalizeWorkshopResponse(json: Record<string, unknown>): WorkshopData {
@@ -292,12 +325,12 @@ function normalizeWorkshopResponse(json: Record<string, unknown>): WorkshopData 
     ...json,
     monthlyWorkingDays,
     monthlyData,
-    fixedExpenses: Array.isArray(json.fixedExpenses) ? json.fixedExpenses as WorkshopData["fixedExpenses"] : empty.fixedExpenses,
-    marketing: Array.isArray(json.marketing) ? json.marketing as WorkshopData["marketing"] : empty.marketing,
-    loans: Array.isArray(json.loans) ? json.loans as WorkshopData["loans"] : empty.loans,
-    staff: Array.isArray(json.staff) ? json.staff as WorkshopData["staff"] : empty.staff,
-    technicians: Array.isArray(json.technicians) ? json.technicians as WorkshopData["technicians"] : empty.technicians,
-    userPreferences: (json.userPreferences && typeof json.userPreferences === "object") ? json.userPreferences as WorkshopData["userPreferences"] : empty.userPreferences,
-    efficiencyCalendar: (json.efficiencyCalendar && typeof json.efficiencyCalendar === "object") ? json.efficiencyCalendar as WorkshopData["efficiencyCalendar"] : empty.efficiencyCalendar,
+    fixedExpenses: Array.isArray(json.fixedExpenses) ? (json.fixedExpenses as WorkshopData["fixedExpenses"]) : empty.fixedExpenses,
+    marketing: Array.isArray(json.marketing) ? (json.marketing as WorkshopData["marketing"]) : empty.marketing,
+    loans: Array.isArray(json.loans) ? (json.loans as WorkshopData["loans"]) : empty.loans,
+    staff: Array.isArray(json.staff) ? (json.staff as WorkshopData["staff"]) : empty.staff,
+    technicians: Array.isArray(json.technicians) ? (json.technicians as WorkshopData["technicians"]) : empty.technicians,
+    userPreferences: (json.userPreferences && typeof json.userPreferences === "object") ? (json.userPreferences as WorkshopData["userPreferences"]) : empty.userPreferences,
+    efficiencyCalendar: (json.efficiencyCalendar && typeof json.efficiencyCalendar === "object") ? (json.efficiencyCalendar as WorkshopData["efficiencyCalendar"]) : empty.efficiencyCalendar,
   } as WorkshopData
 }

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Workshop from "@/lib/models/Workshop";
+import UserProfile from "@/lib/models/UserProfile";
 import { getSessionEmail } from "@/lib/session";
 import { getEffectiveOwnerAndRole } from "@/lib/role";
+import { calculateEfficiencyServer } from "@/lib/efficiency-server";
 
 // Helper to generate monthly data matching the frontend logic
 function generateMonthlyData() {
@@ -35,9 +37,28 @@ export async function POST() {
             return NextResponse.json({ error: "Only company admins can create or reset workshop data." }, { status: 403 });
         }
 
+        // Use branch facilities from user profile (setup wizard) only; no hardcoded fallbacks
+        let workshopSize = 0;
+        let ramps = 0;
+        const profile = await UserProfile.findOne({ email: effective.ownerEmail }).lean() as {
+            company?: { branches?: Array<{ facilities?: { size?: number; ramps?: number } }> };
+        } | null;
+        const firstBranch = profile?.company?.branches?.[0];
+        if (firstBranch?.facilities) {
+            const sizeVal = firstBranch.facilities.size;
+            const rampsVal = firstBranch.facilities.ramps;
+            workshopSize = Math.max(0, Number(sizeVal) || 0);
+            ramps = Math.max(0, Number(rampsVal) || 0);
+        }
+
+        const seedTechnicians = [
+            { id: "1", name: "Tech 1", hourlyPayRate: 22, billableHoursPerWeek: 40, targetEfficiency: 85 },
+            { id: "2", name: "Tech 2", hourlyPayRate: 20, billableHoursPerWeek: 40, targetEfficiency: 80 },
+        ];
+        const techs = seedTechnicians.length;
+
         const initialData = {
             ownerEmail: effective.ownerEmail,
-            efficiencyRequired: 60,
             avgLabourRate: 75,
             currentMonth: "January",
             workingDaysInMonth: 22,
@@ -84,26 +105,11 @@ export async function POST() {
                     employerTaxPercentage: 10,
                 },
             ],
-            technicians: [
-                {
-                    id: "1",
-                    name: "Tech 1",
-                    hourlyPayRate: 22,
-                    billableHoursPerWeek: 40,
-                    targetEfficiency: 85,
-                },
-                {
-                    id: "2",
-                    name: "Tech 2",
-                    hourlyPayRate: 20,
-                    billableHoursPerWeek: 40,
-                    targetEfficiency: 80,
-                },
-            ],
+            technicians: seedTechnicians,
 
-            workshopSize: 5000,
-            ramps: 4,
-            techs: 5,
+            workshopSize,
+            ramps,
+            techs,
 
             monthlyData: generateMonthlyData(),
 
@@ -121,8 +127,23 @@ export async function POST() {
             isStarterTemplate: true,
         };
 
+        const efficiency = calculateEfficiencyServer({
+            fixedExpenses: initialData.fixedExpenses,
+            marketing: initialData.marketing,
+            loans: initialData.loans,
+            staff: initialData.staff,
+            technicians: initialData.technicians,
+            monthlyWorkingDays: initialData.monthlyWorkingDays,
+            ownerProfitGoal: initialData.ownerProfitGoal,
+            estimatedMonthlyPartsProfitEuro: initialData.estimatedMonthlyPartsProfitEuro,
+            avgLabourRate: initialData.avgLabourRate,
+        });
+
+        // Use computed required efficiency, not a hardcoded 60%
+        const efficiencyRequired = efficiency.requiredEfficiency;
+
         await Workshop.deleteMany({ ownerEmail: effective.ownerEmail });
-        const created = await Workshop.create(initialData);
+        const created = await Workshop.create({ ...initialData, efficiencyRequired, ...efficiency });
 
         return NextResponse.json({ success: true, message: "Database seeded successfully", data: created });
     } catch (error: any) {

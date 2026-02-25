@@ -54,7 +54,7 @@ export function SignInScreen({ onSwitchToSignup, successMessage, clearSuccessMes
         setError(res.status === 401 ? "Invalid email or password." : (data?.error || "An error occurred. Please try again."))
         return
       }
-      login(data)
+      await login(data)
     } catch (error) {
       console.error("Sign In | Error during login:", error)
       setError("An error occurred. Please try again.")

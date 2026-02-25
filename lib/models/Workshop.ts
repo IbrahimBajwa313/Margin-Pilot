@@ -88,7 +88,15 @@ const WorkshopSchema = new Schema({
 
     userPreferences: UserPreferencesSchema,
     efficiencyCalendar: EfficiencyCalendarSchema,
-    isStarterTemplate: { type: Boolean, default: true }
+    isStarterTemplate: { type: Boolean, default: true },
+
+    // Computed from same formula as frontend (lib/efficiency-server.ts) so backend and frontend stay aligned
+    requiredEfficiency: Number,
+    breakevenEfficiency: Number,
+    maxPotentialLaborRevenue: Number,
+    totalTechHours: Number,
+    laborBurden: Number,
+    breakevenBurden: Number,
 }, { timestamps: true });
 
 // Check if model exists before compiling to prevent OverwriteModelError

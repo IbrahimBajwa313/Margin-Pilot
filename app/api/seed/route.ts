@@ -19,7 +19,7 @@ export async function POST() {
                 lastName: "User",
                 email: "demo@marginpilot.com",
                 password: hashed,
-                company: { id: "company_seed", name: "Demo Workshop", ownerName: "Demo User", email: "demo@marginpilot.com", multiLocation: false, branches: [{ id: "branch_seed", name: "Main Branch", code: "MAIN", currency: "EUR", facilities: { size: 5000, parking: 10, ramps: 4 }, calculations: [{ id: "calc_seed", name: "Main", dateCreated: new Date().toISOString(), staffCount: 0, gpTarget: 0, isActive: true }] }], users: [] },
+                company: { id: "company_seed", name: "Demo Workshop", ownerName: "Demo User", email: "demo@marginpilot.com", multiLocation: false, branches: [{ id: "branch_seed", name: "Main Branch", code: "MAIN", currency: "EUR", facilities: { size: 0, parking: 0, ramps: 0 }, calculations: [{ id: "calc_seed", name: "Main", dateCreated: new Date().toISOString(), staffCount: 0, gpTarget: 0, isActive: true }] }], users: [] },
                 preferences: { darkMode: false, beginnerMode: true },
                 hasCompletedSetup: false,
                 createdAt: new Date().toISOString(),

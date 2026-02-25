@@ -1,70 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useAppContext } from "@/lib/app-context"
-import { useAuth } from "@/lib/auth-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import type { Branch } from "@/lib/auth-context"
 
 export function BranchFacilities() {
-  const { data: businessData } = useAppContext()
-  const { userProfile, updateProfile } = useAuth()
-  const company = userProfile?.effectiveCompany ?? userProfile?.company
+  const { data, updateData } = useAppContext()
+  const workshopSize = data.workshopSize ?? 0
+  const ramps = data.ramps ?? 0
+  const techCount = data.technicians?.length ?? 0
+  const rampsPerTech = techCount > 0 ? (ramps / techCount).toFixed(1) : "0.0"
 
-  const [workshopSize, setWorkshopSize] = useState(0)
-  const [ramps, setRamps] = useState(0)
-
-  const getActiveBranchData = () => {
-    if (!company?.branches?.length) {
-      return { size: 0, ramps: 0 }
-    }
-    const activeBranch = company.branches[0]
-    return {
-      size: activeBranch.facilities?.size || 0,
-      ramps: activeBranch.facilities?.ramps || 0
-    }
+  const handleUpdate = (field: "workshopSize" | "ramps", value: string) => {
+    const num = Number(value) || 0
+    updateData({ [field]: num })
   }
-  
-  // Initialize with branch data from User Profile
-  useEffect(() => {
-    const branchData = getActiveBranchData()
-    setWorkshopSize(branchData.size)
-    setRamps(branchData.ramps)
-  }, [userProfile])
-  
-  // Handle updates and save to User Profile
-  const handleUpdate = (field: 'size' | 'ramps', value: string) => {
-    const newVal = Number(value) || 0;
-    
-    if (!company?.branches?.length) {
-      console.error("No company or branches found")
-      return
-    }
-    if (field === 'size') setWorkshopSize(newVal)
-    else if (field === 'ramps') setRamps(newVal)
-
-    const updatedBranches = [...company.branches]
-    updatedBranches[0] = {
-      ...updatedBranches[0],
-      facilities: {
-        ...updatedBranches[0].facilities,
-        [field]: newVal
-      }
-    }
-    updateProfile({
-      company: { ...company, branches: updatedBranches }
-    })
-    
-    console.log(`Updated ${field} in branch:`, newVal)
-  }
-  
-  // Get tech count from Business Data context (technicians array)
-  const techCount = businessData.technicians?.length || 0;
-  
-  // Calculate ramps per tech (handle division by zero)
-  const rampsPerTech = techCount > 0 ? (ramps / techCount).toFixed(1) : "0.0";
 
   return (
     <Card className="lg:col-span-1">
@@ -81,7 +32,7 @@ export function BranchFacilities() {
               id="workshop-size"
               type="number"
               value={workshopSize}
-              onChange={(e) => handleUpdate('size', e.target.value)}
+              onChange={(e) => handleUpdate("workshopSize", e.target.value)}
               className="text-lg font-semibold text-foreground h-8"
               placeholder="0"
             />
