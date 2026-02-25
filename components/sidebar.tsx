@@ -11,21 +11,32 @@ import {
   Gauge,
   Target,
   Wrench,
+  FileDown,
   Settings,
-  LifeBuoy as Lifebuoy,
   ChevronLeft,
   ChevronRight,
   Building2,
   Users,
-  User,
   Briefcase,
   UserCog,
+  BookOpen,
+  LifeBuoy,
+  Info,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import type { Role } from "@/lib/auth-context"
+
+/** Routes restricted by role: only these roles can see the link. */
+const SETTINGS_ACCESS: Record<string, Role[]> = {
+  "/settings/branch": ["admin", "manager"],
+  "/settings/company": ["admin", "manager"],
+  "/settings/users": ["admin"],
+  "/settings/profile": ["admin", "manager", "staff"],
+}
 
 interface SidebarProps {
   isOpen: boolean
@@ -59,22 +70,33 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
     header?: string
   }
 
+  const role: Role = userProfile?.effectiveRole || "admin"
+  const canAccess = (href: string) => {
+    const allowed = SETTINGS_ACCESS[href]
+    if (!allowed) return true
+    return allowed.includes(role)
+  }
+
   const navItems: NavItem[] = [
     { icon: Home, label: "Dashboard", href: "/" },
     { icon: Database, label: "Data Inputs", href: "/data-inputs" },
     { icon: Target, label: "Gross Profit Target", href: "/gross-profit-target" },
     { icon: TrendingUp, label: "Simulator", href: "/simulator" },
     { icon: Gauge, label: "Efficiency Analysis", href: "/efficiency-analysis" },
-    { icon: Wrench, label: "Business Tools", href: "/tools" },
+    { icon: Wrench, label: "Tools", href: "/tools" },
+    { icon: FileDown, label: "Data Export", href: "/data-export" },
+    // Resources & support
+    { header: "RESOURCES" },
+    { icon: BookOpen, label: "Resources", href: "/resources" },
+    { icon: LifeBuoy, label: "Help and Support", href: "/help-support" },
+    { icon: Info, label: "About Us", href: "/about" },
     // Settings Section
     { header: "SETTINGS" },
     { icon: Building2, label: "Branch Settings", href: "/settings/branch" },
     { icon: Briefcase, label: "Company Settings", href: "/settings/company" },
     { icon: Users, label: "Company Users", href: "/settings/users" },
     { icon: UserCog, label: "My Settings", href: "/settings/profile" },
- 
-
-  ]
+  ].filter((item) => !item.href || canAccess(item.href))
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -94,7 +116,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden fixed top-4 left-4 z-[55] h-10 w-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:bg-accent/50"
+        className="lg:hidden fixed top-4 left-4 z-[55] h-10 w-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:bg-accent/50 dark:hover:bg-white/10 dark:active:bg-white/15"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label={isMobileOpen ? "Close menu" : "Open menu"}
       >
@@ -132,7 +154,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              className="hidden lg:flex h-8 w-8 shrink-0"
+              className="hidden lg:flex h-8 w-8 shrink-0 dark:hover:bg-white/10 dark:active:bg-white/15"
             >
               {isOpen ? (
                 <ChevronLeft className="w-4 h-4" />
@@ -169,7 +191,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
                     w-full justify-start gap-3 rounded-lg transition-all duration-200 group
                     ${isActive
                       ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90'
-                      : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-sidebar-accent/20'
+                      : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-white/10 dark:hover:text-sidebar-foreground dark:active:bg-white/15'
                     }
                     ${isOpen ? 'px-3' : 'px-2'}
                   `}
@@ -187,17 +209,25 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
         {/* Footer - extra bottom padding on mobile so user + Log Out stay above browser home bar */}
         <div className={`p-4 pb-24 lg:pb-4 border-t border-sidebar-border space-y-3 transition-all duration-200 bg-sidebar/50 backdrop-blur-sm shrink-0 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/30 flex items-center justify-center ring-2 ring-primary/10">
-              <span className="text-xs font-bold text-primary dark:text-primary">{getUserInitials()}</span>
+            <div className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/30 flex items-center justify-center ring-2 ring-primary/10 overflow-hidden shrink-0">
+              {userProfile?.photo ? (
+                <img
+                  src={userProfile.photo}
+                  alt={getUserDisplayName()}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-bold text-primary dark:text-primary">{getUserInitials()}</span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-sidebar-foreground truncate">{getUserDisplayName()}</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">{userProfile?.company.name || "Owner"}</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate">{(userProfile?.effectiveCompany ?? userProfile?.company)?.name || "Owner"}</p>
             </div>
           </div>
           <Button
             variant="outline"
-            className="w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-sidebar-accent/20 justify-start gap-2 text-xs bg-transparent border-sidebar-border"
+            className="w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-white/10 dark:hover:text-sidebar-foreground dark:active:bg-white/15 justify-start gap-2 text-xs bg-transparent border-sidebar-border"
             onClick={logout}
           >
             <LogOut className="w-4 h-4" />

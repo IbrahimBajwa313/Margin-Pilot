@@ -23,6 +23,7 @@ import {
   Gauge
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { AccessDenied } from "@/components/access-denied"
 import { toast } from "sonner"
 
 const CURRENCIES = [
@@ -37,8 +38,15 @@ const CURRENCIES = [
 export default function BranchSettings() {
   const { userProfile, updateProfile } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
+  const role = userProfile?.effectiveRole || "admin"
+  const canAccess = role === "admin" || role === "manager"
 
-  if (!userProfile || userProfile.company.branches.length === 0) {
+  if (userProfile && !canAccess) {
+    return <AccessDenied message="Only admins and managers can access Branch Settings." />
+  }
+
+  const company = userProfile?.effectiveCompany ?? userProfile?.company
+  if (!userProfile || !company || company.branches.length === 0) {
     return (
       <div className="container mx-auto py-6 px-4 md:py-8 md:px-6 min-w-0">
         <div className="text-center">
@@ -55,7 +63,7 @@ export default function BranchSettings() {
     )
   }
 
-  const branch = userProfile.company.branches[0] // For now, just handle the first branch
+  const branch = company.branches[0] // For now, just handle the first branch
   const [formData, setFormData] = useState({
     name: branch.name,
     code: branch.code,
@@ -78,7 +86,7 @@ export default function BranchSettings() {
   const handleSave = () => {
     if (!userProfile) return
 
-    const updatedBranches = userProfile.company.branches.map(b => 
+    const updatedBranches = company.branches.map(b => 
       b.id === branch.id 
         ? {
             ...branch,
@@ -95,7 +103,7 @@ export default function BranchSettings() {
 
     updateProfile({
       company: {
-        ...userProfile.company,
+        ...company,
         branches: updatedBranches
       }
     })
@@ -423,7 +431,7 @@ export default function BranchSettings() {
           {/* Action Buttons */}
           {isEditing && (
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 w-full sm:w-auto">
+              <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 dark:active:bg-teal-400 w-full sm:w-auto">
                 Save Changes
               </Button>
               <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto">

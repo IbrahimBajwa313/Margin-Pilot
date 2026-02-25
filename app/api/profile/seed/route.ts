@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import UserProfile from "@/lib/models/UserProfile";
+import { hashPassword } from "@/lib/password";
+
+const DEMO_PASSWORD_PLAIN = "demo1234";
 
 export async function POST() {
     try {
@@ -13,12 +16,13 @@ export async function POST() {
                 data: existing,
             });
         }
+        const hashedPassword = await hashPassword(DEMO_PASSWORD_PLAIN);
         const seedProfile = {
             id: `user_${Date.now()}_seed`,
             firstName: "Demo",
             lastName: "User",
             email: "demo@marginpilot.com",
-            password: "demo1234",
+            password: hashedPassword,
             company: {
                 id: "company_seed",
                 name: "Demo Workshop",

@@ -22,10 +22,18 @@ import {
   User as UserIcon,
   Clock,
   AlertCircle,
-  UserCheck
+  UserCheck,
+  Loader2
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { AccessDenied } from "@/components/access-denied"
 import { toast } from "sonner"
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isValidEmail(email: string) {
+  return EMAIL_REGEX.test((email || "").trim())
+}
 
 const ROLES = [
   { value: "admin", label: "Admin", icon: Crown, description: "Full access to all settings" },
@@ -34,12 +42,25 @@ const ROLES = [
 ]
 
 export default function CompanyUsers() {
-  const { userProfile, updateProfile } = useAuth()
+  const { userProfile, updateProfile, refreshProfile } = useAuth()
   const [inviteEmail, setInviteEmail] = useState("")
+  const [inviteError, setInviteError] = useState("")
   const [selectedRole, setSelectedRole] = useState<"admin" | "manager" | "staff">("staff")
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const [isInviting, setIsInviting] = useState(false)
   const [editingUser, setEditingUser] = useState<string | null>(null)
   const [editingRole, setEditingRole] = useState<"admin" | "manager" | "staff">("staff")
+  const [savingUserId, setSavingUserId] = useState<string | null>(null)
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null)
+
+  const role = userProfile?.effectiveRole || "admin"
+  const canAccessCompanyUsers = role === "admin"
+  const company = userProfile?.effectiveCompany ?? userProfile?.company
+  const companyUsers = company?.users || []
+
+  if (userProfile && !canAccessCompanyUsers) {
+    return <AccessDenied message="Only admins can access Company Users." />
+  }
 
   if (!userProfile) {
     return (
@@ -55,66 +76,103 @@ export default function CompanyUsers() {
     )
   }
 
-  // Check if current user is admin
-  const currentUserIsAdmin = true // In a real app, this would check the user's role
+  const currentUserIsAdmin = canAccessCompanyUsers
 
-  const handleInviteUser = () => {
-    if (!inviteEmail || !userProfile) return
+  const handleInviteUser = async () => {
+    setInviteError("")
+    const email = inviteEmail.trim().toLowerCase()
+    if (!email || !userProfile) return
 
-    const newUser = {
-      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      firstName: "New",
-      lastName: "User",
-      email: inviteEmail,
-      role: selectedRole as "admin" | "manager" | "staff",
-      status: "invited" as const,
-      createdAt: new Date().toISOString()
+    if (!isValidEmail(email)) {
+      setInviteError("Please enter a valid email address.")
+      return
+    }
+    if (email === userProfile.email.trim().toLowerCase()) {
+      setInviteError("You cannot invite yourself.")
+      return
+    }
+    const alreadyInCompany = companyUsers.some(
+      (u) => (u.email || "").trim().toLowerCase() === email
+    )
+    if (alreadyInCompany) {
+      setInviteError("This email is already in your company.")
+      return
     }
 
-    updateProfile({
-      company: {
-        ...userProfile.company,
-        users: [...(userProfile?.company?.users || []), newUser]
+    setIsInviting(true)
+    try {
+      const res = await fetch("/api/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, role: selectedRole }),
+        credentials: "include",
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setInviteError((data as { error?: string }).error || "Failed to send invitation")
+        toast.error((data as { error?: string }).error || "Failed to send invitation")
+        return
       }
-    })
-
-    setInviteEmail("")
-    setSelectedRole("staff")
-    setIsInviteDialogOpen(false)
-    toast.success(`Invitation sent to ${inviteEmail}`)
+      setInviteEmail("")
+      setSelectedRole("staff")
+      setIsInviteDialogOpen(false)
+      toast.success(
+        (data as { message?: string }).message ||
+          "Invitation sent by email. They can accept the link to join your company."
+      )
+      await refreshProfile()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to send invitation")
+    } finally {
+      setIsInviting(false)
+    }
   }
 
-  const handleUpdateRole = (userId: string) => {
+  const handleUpdateRole = async (userId: string) => {
     if (!userProfile) return
 
-    const updatedUsers = (userProfile?.company?.users || [])?.map(user =>
+    const updatedUsers = (company?.users || []).map((user) =>
       user.id === userId ? { ...user, role: editingRole } : user
     )
 
-    updateProfile({
-      company: {
-        ...userProfile.company,
-        users: updatedUsers
-      }
-    })
-
-    setEditingUser(null)
-    toast.success("User role updated successfully")
-  }
-
-  const handleRemoveUser = (userId: string) => {
-    if (!userProfile) return
-
-    const user = (userProfile?.company?.users || []).find(u => u.id === userId)
-    if (user && confirm(`Are you sure you want to remove ${user.firstName} ${user.lastName}?`)) {
-      const updatedUsers = (userProfile?.company?.users || []).filter(u => u.id !== userId)
-      updateProfile({
+    setSavingUserId(userId)
+    try {
+      await updateProfile({
         company: {
-          ...userProfile.company,
+          ...company,
           users: updatedUsers
         }
       })
-      toast.success(`User ${user.firstName} ${user.lastName} removed successfully`)
+      setEditingUser(null)
+      toast.success("Role updated successfully")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update role")
+    } finally {
+      setSavingUserId(null)
+    }
+  }
+
+  const handleRemoveUser = async (userId: string) => {
+    if (!userProfile) return
+
+    const user = (company?.users || []).find((u) => u.id === userId)
+    if (!user) return
+    if (!confirm(`Remove ${user.firstName} ${user.lastName} (${user.email}) from the company?`)) return
+
+    setRemovingUserId(userId)
+    try {
+      const updatedUsers = (company?.users || []).filter((u) => u.id !== userId)
+      await updateProfile({
+        company: {
+          ...company,
+          users: updatedUsers
+        }
+      })
+      toast.success(`${user.firstName} ${user.lastName} removed from company`)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to remove user")
+    } finally {
+      setRemovingUserId(null)
     }
   }
 
@@ -165,7 +223,6 @@ export default function CompanyUsers() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
-  // Combine current user with company users for display
   const allUsers = [
     {
       id: userProfile.id,
@@ -178,7 +235,7 @@ export default function CompanyUsers() {
       createdAt: userProfile.createdAt,
       isCurrentUser: true
     },
-    ...(userProfile?.company?.users || [])?.map(user => ({ ...user, isCurrentUser: false }))
+    ...companyUsers.map((user) => ({ ...user, isCurrentUser: false }))
   ]
 
   if (!currentUserIsAdmin) {
@@ -201,7 +258,13 @@ export default function CompanyUsers() {
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white min-w-0">
           Company Users
         </h2>
-        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <Dialog
+          open={isInviteDialogOpen}
+          onOpenChange={(open) => {
+            setIsInviteDialogOpen(open)
+            if (!open) setInviteError("")
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto shrink-0">
               <Plus className="h-4 w-4 mr-2" />
@@ -212,28 +275,41 @@ export default function CompanyUsers() {
             <DialogHeader>
               <DialogTitle>Invite New User</DialogTitle>
               <DialogDescription>
-                Send an invitation to join your company team.
+                Add a team member by email and role. They can sign up with this email to join your company.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
+              {inviteError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{inviteError}</AlertDescription>
+                </Alert>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="invite-email">Email Address</Label>
                 <Input
-                  id="email"
+                  id="invite-email"
                   type="email"
                   value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onChange={(e) => {
+                    setInviteEmail(e.target.value)
+                    setInviteError("")
+                  }}
                   placeholder="colleague@example.com"
+                  disabled={isInviting}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select value={selectedRole} onValueChange={(value: "admin" | "manager" | "staff") => setSelectedRole(value)}>
+                <Select
+                  value={selectedRole}
+                  onValueChange={(value: "admin" | "manager" | "staff") => setSelectedRole(value)}
+                  disabled={isInviting}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES?.map((role) => {
+                    {ROLES.map((role) => {
                       const Icon = role.icon
                       return (
                         <SelectItem key={role.value} value={role.value}>
@@ -251,11 +327,24 @@ export default function CompanyUsers() {
                 </Select>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 pt-4">
-                <Button onClick={handleInviteUser} disabled={!inviteEmail} className="w-full sm:w-auto">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Send Invitation
+                <Button
+                  onClick={handleInviteUser}
+                  disabled={!inviteEmail.trim() || isInviting}
+                  className="w-full sm:w-auto"
+                >
+                  {isInviting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Mail className="h-4 w-4 mr-2" />
+                  )}
+                  {isInviting ? "Sending…" : "Send invitation"}
                 </Button>
-                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)} className="w-full sm:w-auto">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsInviteDialogOpen(false)}
+                  className="w-full sm:w-auto"
+                  disabled={isInviting}
+                >
                   Cancel
                 </Button>
               </div>
@@ -364,33 +453,50 @@ export default function CompanyUsers() {
                       <div className="flex gap-2">
                         {editingUser === user.id ? (
                           <>
-                            <Button size="sm" onClick={() => handleUpdateRole(user.id)}>
-                              Save
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateRole(user.id)}
+                              disabled={savingUserId === user.id}
+                            >
+                              {savingUserId === user.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Save"
+                              )}
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => setEditingUser(null)}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingUser(null)}
+                              disabled={savingUserId === user.id}
+                            >
                               Cancel
                             </Button>
                           </>
                         ) : (
                           <>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => {
                                 setEditingUser(user.id)
                                 setEditingRole(user.role)
                               }}
-                              disabled={user.isCurrentUser}
+                              disabled={user.isCurrentUser || removingUserId === user.id}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => handleRemoveUser(user.id)}
-                              disabled={user.isCurrentUser}
+                              disabled={user.isCurrentUser || removingUserId === user.id}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {removingUserId === user.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </Button>
                           </>
                         )}

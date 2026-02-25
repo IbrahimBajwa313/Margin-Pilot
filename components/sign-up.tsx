@@ -30,10 +30,12 @@ interface PasswordValidation {
 }
 
 interface SignUpScreenProps {
-  onSwitchToLogin?: () => void
+  onSwitchToLogin?: (message?: string) => void
+  /** Pre-fill email when user opens an invite link (?signup=email) */
+  initialEmail?: string
 }
 
-export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
+export function SignUp({ onSwitchToLogin, initialEmail }: SignUpScreenProps) {
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -53,10 +55,17 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
     firstName: "",
     lastName: "",
     workspaceName: "",
-    email: "",
+    email: initialEmail || "",
     password: "",
     confirmPassword: ""
   })
+
+  // Pre-fill email when opening invite link
+  useEffect(() => {
+    if (initialEmail) {
+      setFormData((prev) => ({ ...prev, email: initialEmail }))
+    }
+  }, [initialEmail])
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
@@ -177,7 +186,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
         }
         return
       }
-      login(data)
+      onSwitchToLogin?.("Account created. Please sign in with your email and password.")
     } catch (error) {
       console.error("Sign Up | Error creating account:", error)
       setErrors({ email: "An error occurred. Please try again." })
@@ -463,7 +472,7 @@ export function SignUp({ onSwitchToLogin }: SignUpScreenProps) {
                   type="button"
                   variant="ghost"
                   className="p-0 h-auto text-primary hover:text-primary/80 underline"
-                  onClick={onSwitchToLogin}
+                  onClick={() => onSwitchToLogin()}
                 >
                   Sign in
                 </Button>

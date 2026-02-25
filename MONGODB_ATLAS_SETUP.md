@@ -36,3 +36,13 @@ This project uses **MongoDB Atlas** with Mongoose. Follow these steps to connect
 3. Optionally seed the database: send a `POST` request to `/api/workshop/seed` (e.g. with curl or a REST client).
 
 If `MONGODB_URI` is missing or wrong, you’ll see an error pointing you to set it in `.env.local`.
+
+## 5. Where to see your data in Atlas
+
+- In Atlas go to **Data Storage** → **Browse Collections**.
+- **Database**: The name comes from your connection string. If the URI has a path like `...mongodb.net/my-db-name?retryWrites=...`, the database is `my-db-name`. If there is no path (only `...mongodb.net/?retryWrites=...`), the database is **test**.
+- **Collections**:
+  - **userprofiles** — user accounts (sign-up / profile API). Each new account is one document here.
+  - **workshops** — workshop data (simulator, data inputs, etc.).
+- When you sign up a new account, the Next.js server terminal will log something like: `[Profile API] New account saved to Atlas → database: ... | collection: userprofiles | _id: ...`. Use that database name in Atlas to open the right database and then the **userprofiles** collection.
+- **Passwords:** User passwords are never stored in plain text. They are hashed with bcrypt before being saved in `userprofiles`. See **DOCUMENTATION.md** for security details.

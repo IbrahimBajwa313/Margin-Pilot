@@ -12,9 +12,11 @@ import { useAuth } from "@/lib/auth-context"
 
 interface SignInScreenProps {
   onSwitchToSignup: () => void
+  successMessage?: string | null
+  clearSuccessMessage?: () => void
 }
 
-export function SignInScreen({ onSwitchToSignup }: SignInScreenProps) {
+export function SignInScreen({ onSwitchToSignup, successMessage, clearSuccessMessage }: SignInScreenProps) {
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -44,7 +46,8 @@ export function SignInScreen({ onSwitchToSignup }: SignInScreenProps) {
       const res = await fetch(LOGIN_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email.trim(), password: formData.password })
+        body: JSON.stringify({ email: formData.email.trim(), password: formData.password }),
+        credentials: 'include',
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -100,6 +103,13 @@ export function SignInScreen({ onSwitchToSignup }: SignInScreenProps) {
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-3 md:space-y-4 px-0 sm:px-0">
+            {successMessage && (
+              <Alert className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800">
+                <AlertDescription className="text-green-800 dark:text-green-200">
+                  {successMessage}
+                </AlertDescription>
+              </Alert>
+            )}
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground">Email Address</Label>

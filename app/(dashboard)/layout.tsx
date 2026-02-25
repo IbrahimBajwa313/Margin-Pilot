@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/sidebar"
 import { TopHeader } from "@/components/top-header"
 import { WorkshopLoader } from "@/components/workshop-loader"
 import { Button } from "@/components/ui/button"
-import { ChevronRight, RefreshCw } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { useAppContext } from "@/lib/app-context"
 
 export default function DashboardLayout({
@@ -15,26 +15,12 @@ export default function DashboardLayout({
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { dataLoading, dataError } = useAppContext()
+  const { dataLoading } = useAppContext()
 
   if (dataLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <WorkshopLoader size="large" loadingText="Loading workshop data..." />
-      </div>
-    )
-  }
-
-  if (dataError) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center space-y-4 max-w-md">
-          <p className="text-destructive font-medium">{dataError}</p>
-          <Button onClick={() => window.location.reload()} className="gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Retry
-          </Button>
-        </div>
       </div>
     )
   }

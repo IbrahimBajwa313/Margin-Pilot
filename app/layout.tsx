@@ -6,6 +6,7 @@ import "./globals.css"
 import { AppProvider } from "@/lib/app-context"
 import { AuthProvider } from "@/lib/auth-context"
 import { AuthGuard } from "@/components/auth-guard"
+import { Toaster } from "sonner"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -53,6 +54,7 @@ export default function RootLayout({
               {children}
             </AuthGuard>
           </AppProvider>
+          <Toaster position="top-center" richColors closeButton />
           <Analytics />
         </AuthProvider>
       </body>

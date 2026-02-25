@@ -22,13 +22,23 @@ import {
   Palette
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { uploadFile } from "@/lib/upload"
+import { AccessDenied } from "@/components/access-denied"
 import { toast } from "sonner"
 
 export default function CompanySettings() {
   const { userProfile, updateProfile } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
-  const [logoPreview, setLogoPreview] = useState<string | null>(userProfile?.company.logo || null)
+  const company = userProfile?.effectiveCompany ?? userProfile?.company
+  const [logoPreview, setLogoPreview] = useState<string | null>(company?.logo || null)
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const role = userProfile?.effectiveRole || "admin"
+  const canAccess = role === "admin" || role === "manager"
+
+  if (userProfile && !canAccess) {
+    return <AccessDenied message="Only admins and managers can access Company Settings." />
+  }
 
   if (!userProfile) {
     return (
@@ -45,32 +55,36 @@ export default function CompanySettings() {
   }
 
   const [formData, setFormData] = useState({
-    name: userProfile.company.name,
-    ownerName: userProfile.company.ownerName,
-    address: userProfile.company.address || "",
-    postcode: userProfile.company.address ? "" : "", // Extract postcode from address if needed
-    email: userProfile.company.email,
-    phone: userProfile.company.phone || "",
-    website: userProfile.company.website || "",
-    multiLocation: userProfile.company.multiLocation
+    name: company?.name ?? "",
+    ownerName: company?.ownerName ?? "",
+    address: company?.address || "",
+    postcode: company?.address ? "" : "",
+    email: company?.email ?? "",
+    phone: company?.phone || "",
+    website: company?.website || "",
+    multiLocation: company?.multiLocation ?? false
   })
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        setLogoPreview(result)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+    setIsUploadingLogo(true)
+    try {
+      const url = await uploadFile(file, "company")
+      setLogoPreview(url)
+      toast.success("Logo uploaded. Click Save to update company settings.")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed")
+    } finally {
+      setIsUploadingLogo(false)
+      event.target.value = ""
     }
   }
 
   const handleSave = () => {
     updateProfile({
       company: {
-        ...userProfile.company,
+        ...company,
         name: formData.name,
         ownerName: formData.ownerName,
         address: formData.address || undefined,
@@ -87,16 +101,16 @@ export default function CompanySettings() {
 
   const handleCancel = () => {
     setFormData({
-      name: userProfile.company.name,
-      ownerName: userProfile.company.ownerName,
-      address: userProfile.company.address || "",
-      postcode: userProfile.company.address ? "" : "",
-      email: userProfile.company.email,
-      phone: userProfile.company.phone || "",
-      website: userProfile.company.website || "",
-      multiLocation: userProfile.company.multiLocation
+      name: company?.name ?? "",
+      ownerName: company?.ownerName ?? "",
+      address: company?.address || "",
+      postcode: company?.address ? "" : "",
+      email: company?.email ?? "",
+      phone: company?.phone || "",
+      website: company?.website || "",
+      multiLocation: company?.multiLocation ?? false
     })
-    setLogoPreview(userProfile.company.logo || null)
+    setLogoPreview(company?.logo || null)
     setIsEditing(false)
   }
 
@@ -108,12 +122,12 @@ export default function CompanySettings() {
   }
 
   const handleDeleteBranch = (branchId: string) => {
-    const branch = userProfile.company.branches.find(b => b.id === branchId)
+    const branch = company?.branches?.find(b => b.id === branchId)
     if (branch && confirm(`Are you sure you want to delete "${branch.name}"? This will also delete all associated calculations.`)) {
-      const updatedBranches = userProfile.company.branches.filter(b => b.id !== branchId)
+      const updatedBranches = (company?.branches ?? []).filter(b => b.id !== branchId)
       updateProfile({
         company: {
-          ...userProfile.company,
+          ...company,
           branches: updatedBranches
         }
       })
@@ -182,9 +196,10 @@ export default function CompanySettings() {
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
                     className="mb-2"
+                    disabled={isUploadingLogo}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    Upload Logo
+                    {isUploadingLogo ? "Uploading…" : "Upload Logo"}
                   </Button>
                   <input
                     ref={fileInputRef}
@@ -341,7 +356,7 @@ export default function CompanySettings() {
           {/* Action Buttons */}
           {isEditing && (
             <div className="flex gap-4 pt-4">
-              <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
+              <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 dark:active:bg-teal-400">
                 Save Changes
               </Button>
               <Button variant="outline" onClick={handleCancel}>
@@ -353,7 +368,7 @@ export default function CompanySettings() {
       </Card>
 
       {/* Branch Management */}
-      {userProfile.company.branches.length > 0 && (
+      {(company?.branches?.length ?? 0) > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Branch Management</CardTitle>
@@ -363,7 +378,7 @@ export default function CompanySettings() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {userProfile.company.branches.map((branch) => (
+              {(company?.branches ?? []).map((branch) => (
                 <div key={branch.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
                     <h4 className="font-medium">{branch.name}</h4>
@@ -374,7 +389,7 @@ export default function CompanySettings() {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteBranch(branch.id)}
-                    disabled={userProfile.company.branches.length === 1}
+                    disabled={(company?.branches?.length ?? 0) === 1}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -415,14 +430,14 @@ export default function CompanySettings() {
               <Button
                 variant="destructive"
                 onClick={handleDeleteCompany}
-                disabled={userProfile.company.branches.length > 1}
+                disabled={(company?.branches?.length ?? 0) > 1}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete Company
               </Button>
             </div>
 
-            {userProfile.company.branches.length > 1 && (
+            {(company?.branches?.length ?? 0) > 1 && (
               <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
                   ⚠️ You must delete all branches except one before deleting the company.
@@ -438,7 +453,7 @@ export default function CompanySettings() {
                 Remove specific branches and their associated calculations
               </p>
               <div className="space-y-2">
-                {userProfile.company.branches.map((branch) => (
+                {(company?.branches ?? []).map((branch) => (
                   <div key={branch.id} className="flex items-center justify-between p-3 border rounded">
                     <div>
                       <span className="font-medium">{branch.name}</span>
@@ -450,7 +465,7 @@ export default function CompanySettings() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeleteBranch(branch.id)}
-                      disabled={userProfile.company.branches.length === 1}
+                      disabled={(company?.branches?.length ?? 0) === 1}
                       className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                     >
                       Delete
@@ -458,7 +473,7 @@ export default function CompanySettings() {
                   </div>
                 ))}
               </div>
-              {userProfile.company.branches.length === 1 && (
+              {(company?.branches?.length ?? 0) === 1 && (
                 <p className="text-xs text-muted-foreground mt-2">
                   Cannot delete the last branch. Create a new branch first.
                 </p>

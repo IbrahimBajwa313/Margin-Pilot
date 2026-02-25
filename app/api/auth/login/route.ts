@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import UserProfile from "@/lib/models/UserProfile";
+import { verifyPassword } from "@/lib/password";
+import { setSessionCookie } from "@/lib/session";
 
 export async function POST(req: Request) {
     try {
@@ -15,11 +17,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
         }
         const doc = profile.toObject() as Record<string, unknown>;
-        const storedPassword = doc.password;
-        if (storedPassword !== password) {
+        const storedPassword = doc.password as string | undefined;
+        if (!storedPassword || !(await verifyPassword(String(password), storedPassword))) {
             return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
         }
         delete doc.password;
+        await setSessionCookie(String(email).trim());
         return NextResponse.json(doc);
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Unknown error";

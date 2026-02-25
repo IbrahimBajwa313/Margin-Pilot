@@ -80,6 +80,7 @@ export interface WorkshopData {
 
   userPreferences?: UserPreferences
   efficiencyCalendar?: EfficiencyCalendar
+  isStarterTemplate?: boolean
 }
 
 export interface EfficiencyCalculation {

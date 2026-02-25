@@ -53,6 +53,8 @@ export interface Company {
   users: CompanyUser[];
 }
 
+export type Role = "admin" | "manager" | "staff"
+
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -61,8 +63,14 @@ export interface UserProfile {
   password: string;
   jobTitle?: string;
   linkedinUrl?: string;
-  photo?: string; // base64 string
+  photo?: string; // public URL from Supabase Storage
   company: Company;
+  /** Set when user is a member of another company (accepted invite). Role is in owner's company.users. */
+  companyOwnerEmail?: string;
+  /** Resolved by API: 'admin' | 'manager' | 'staff'. Owner = admin; members get role from company.users. */
+  effectiveRole?: Role;
+  /** Resolved by API: company to show (owner's company when member, else own company). */
+  effectiveCompany?: Company;
   preferences: {
     darkMode: boolean;
     beginnerMode: boolean;
@@ -77,34 +85,35 @@ interface AuthContextType {
   login: (profile: UserProfile) => void
   logout: () => void
   updateProfile: (updates: Partial<UserProfile>) => void
+  refreshProfile: () => Promise<void>
   isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const SESSION_KEY = 'workshop_session_active'
-const EMAIL_KEY = 'workshop_user_email'
 const PROFILE_API = '/api/profile'
+const LOGOUT_API = '/api/auth/logout'
+
+const fetchOpts = { credentials: 'include' as RequestCredentials }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Restore session from API using stored email
+  // Restore session: cookie identifies user, GET /api/profile returns their profile
   useEffect(() => {
     if (typeof window === 'undefined') return
     const sessionActive = localStorage.getItem(SESSION_KEY)
-    const email = localStorage.getItem(EMAIL_KEY)
-    if (sessionActive !== 'true' || !email) {
+    if (sessionActive !== 'true') {
       setIsLoading(false)
       return
     }
-    fetch(`${PROFILE_API}?email=${encodeURIComponent(email)}`)
+    fetch(PROFILE_API, fetchOpts)
       .then((res) => {
         if (res.ok) return res.json()
         localStorage.removeItem(SESSION_KEY)
-        localStorage.removeItem(EMAIL_KEY)
         return null
       })
       .then((profile: UserProfile | null) => {
@@ -115,7 +124,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {
         localStorage.removeItem(SESSION_KEY)
-        localStorage.removeItem(EMAIL_KEY)
       })
       .finally(() => setIsLoading(false))
   }, [])
@@ -124,34 +132,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserProfile(profile)
     setIsAuthenticated(true)
     localStorage.setItem(SESSION_KEY, 'true')
-    localStorage.setItem(EMAIL_KEY, profile.email)
   }
 
   function logout() {
     setUserProfile(null)
     setIsAuthenticated(false)
     localStorage.removeItem(SESSION_KEY)
-    localStorage.removeItem(EMAIL_KEY)
+    fetch(LOGOUT_API, { method: 'POST', ...fetchOpts }).catch(() => {})
   }
 
-  async function updateProfile(updates: Partial<UserProfile>) {
+  async function updateProfile(updates: Partial<UserProfile>): Promise<void> {
     if (!userProfile) return
     const updatedProfile = { ...userProfile, ...updates }
     setUserProfile(updatedProfile)
-    try {
-      const res = await fetch(PROFILE_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedProfile),
-      })
-      if (!res.ok) throw new Error('Failed to save profile')
-    } catch (e) {
-      console.error('Auth | Failed to persist profile:', e)
+    const res = await fetch(PROFILE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProfile),
+      credentials: 'include',
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error((err as { error?: string }).error ?? 'Failed to save profile')
+    }
+    const data = await res.json()
+    setUserProfile(data)
+  }
+
+  async function refreshProfile(): Promise<void> {
+    const res = await fetch(PROFILE_API, fetchOpts)
+    if (res.ok) {
+      const data = await res.json()
+      setUserProfile(data)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userProfile, login, logout, updateProfile, isLoading }}>
+    <AuthContext.Provider value={{ isAuthenticated, userProfile, login, logout, updateProfile, refreshProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

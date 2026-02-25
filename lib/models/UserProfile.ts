@@ -67,6 +67,8 @@ const UserProfileSchema = new Schema({
     linkedinUrl: String,
     photo: String,
     company: CompanySchema,
+    /** When set, this user is a member of another company (the owner's). Role is in owner's company.users. */
+    companyOwnerEmail: String,
     preferences: PreferencesSchema,
     hasCompletedSetup: { type: Boolean, default: false },
     createdAt: String,

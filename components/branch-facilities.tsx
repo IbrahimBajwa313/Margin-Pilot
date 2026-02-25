@@ -11,19 +11,16 @@ import type { Branch } from "@/lib/auth-context"
 export function BranchFacilities() {
   const { data: businessData } = useAppContext()
   const { userProfile, updateProfile } = useAuth()
-  
-  // State for editable values (these should come from User Profile/Branch Settings)
+  const company = userProfile?.effectiveCompany ?? userProfile?.company
+
   const [workshopSize, setWorkshopSize] = useState(0)
   const [ramps, setRamps] = useState(0)
-  
-  // Get active branch data from User Profile
+
   const getActiveBranchData = () => {
-    if (!userProfile?.company?.branches?.length) {
+    if (!company?.branches?.length) {
       return { size: 0, ramps: 0 }
     }
-    
-    // For now, use the first branch. In a real app, this would be based on activeBranchIndex
-    const activeBranch = userProfile.company.branches[0]
+    const activeBranch = company.branches[0]
     return {
       size: activeBranch.facilities?.size || 0,
       ramps: activeBranch.facilities?.ramps || 0
@@ -41,20 +38,14 @@ export function BranchFacilities() {
   const handleUpdate = (field: 'size' | 'ramps', value: string) => {
     const newVal = Number(value) || 0;
     
-    if (!userProfile?.company?.branches?.length) {
-      console.error("No user profile or branches found")
+    if (!company?.branches?.length) {
+      console.error("No company or branches found")
       return
     }
-    
-    // Update local state immediately for responsive UI
-    if (field === 'size') {
-      setWorkshopSize(newVal);
-    } else if (field === 'ramps') {
-      setRamps(newVal);
-    }
-    
-    // Update the active branch in user profile
-    const updatedBranches = [...userProfile.company.branches]
+    if (field === 'size') setWorkshopSize(newVal)
+    else if (field === 'ramps') setRamps(newVal)
+
+    const updatedBranches = [...company.branches]
     updatedBranches[0] = {
       ...updatedBranches[0],
       facilities: {
@@ -62,13 +53,8 @@ export function BranchFacilities() {
         [field]: newVal
       }
     }
-    
-    // Save through auth context
     updateProfile({
-      company: {
-        ...userProfile.company,
-        branches: updatedBranches
-      }
+      company: { ...company, branches: updatedBranches }
     })
     
     console.log(`Updated ${field} in branch:`, newVal)

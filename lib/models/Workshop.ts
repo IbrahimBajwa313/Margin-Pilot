@@ -51,9 +51,9 @@ const EfficiencyCalendarSchema = new Schema({
     efficiencyWorkingDays: { type: Number, default: 19.25 }
 }, { _id: false });
 
-// Using 'any' for the generic to avoid strict typing issues with mongoose models for now
-// Ideally we would pass <WorkshopData & Document>
+// ownerEmail: which user (by email) this workshop belongs to. Required for multi-tenant SaaS.
 const WorkshopSchema = new Schema({
+    ownerEmail: { type: String, required: true, index: true },
     efficiencyRequired: Number,
     avgLabourRate: Number,
     currentMonth: String,
@@ -87,7 +87,8 @@ const WorkshopSchema = new Schema({
     dailyActualStatus: { type: String, enum: ["green", "amber", "red", null] },
 
     userPreferences: UserPreferencesSchema,
-    efficiencyCalendar: EfficiencyCalendarSchema
+    efficiencyCalendar: EfficiencyCalendarSchema,
+    isStarterTemplate: { type: Boolean, default: true }
 }, { timestamps: true });
 
 // Check if model exists before compiling to prevent OverwriteModelError

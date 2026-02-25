@@ -31,7 +31,7 @@ export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenu
               variant="ghost"
               size="icon"
               onClick={onOpenMobileMenu}
-              className="lg:hidden h-9 w-9 shrink-0 rounded-lg border border-border/50 bg-background/50 hover:bg-accent/50 flex items-center justify-center"
+              className="lg:hidden h-9 w-9 shrink-0 rounded-lg border border-border/50 bg-background/50 hover:bg-accent/50 dark:hover:bg-white/10 dark:active:bg-white/15 flex items-center justify-center"
               aria-label="Open menu"
             >
               <PanelLeft className="h-5 w-5 shrink-0" />
@@ -82,6 +82,8 @@ export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenu
     transition-colors duration-200
 
     hover:bg-primary/90
+    dark:hover:bg-primary/80
+    dark:active:bg-primary/70
     hover:shadow-md
 
     active:bg-primary/85
@@ -98,7 +100,7 @@ export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenu
 
 
           {/* Theme Toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-10 h-10 bg-transparent   border-border/50">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-10 h-10 bg-transparent border border-border/50 dark:hover:bg-white/10 dark:active:bg-white/15 rounded-lg">
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
         </div>

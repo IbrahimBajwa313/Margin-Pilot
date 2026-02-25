@@ -1,7 +1,8 @@
-
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Workshop from "@/lib/models/Workshop";
+import { getSessionEmail } from "@/lib/session";
+import { getEffectiveOwnerAndRole } from "@/lib/role";
 
 // Helper to generate monthly data matching the frontend logic
 function generateMonthlyData() {
@@ -21,9 +22,21 @@ function generateMonthlyData() {
 
 export async function POST() {
     try {
+        const email = await getSessionEmail();
+        if (!email) {
+            return NextResponse.json({ error: "Unauthorized. Please log in to seed your workshop." }, { status: 401 });
+        }
         await dbConnect();
+        const effective = await getEffectiveOwnerAndRole(email);
+        if (!effective) {
+            return NextResponse.json({ error: "Profile not found." }, { status: 404 });
+        }
+        if (effective.role !== "admin") {
+            return NextResponse.json({ error: "Only company admins can create or reset workshop data." }, { status: 403 });
+        }
 
         const initialData = {
+            ownerEmail: effective.ownerEmail,
             efficiencyRequired: 60,
             avgLabourRate: 75,
             currentMonth: "January",
@@ -105,10 +118,10 @@ export async function POST() {
                 sickDays: 2,
                 efficiencyWorkingDays: 19.25,
             },
+            isStarterTemplate: true,
         };
 
-        // Upsert or Create
-        await Workshop.deleteMany({});
+        await Workshop.deleteMany({ ownerEmail: effective.ownerEmail });
         const created = await Workshop.create(initialData);
 
         return NextResponse.json({ success: true, message: "Database seeded successfully", data: created });

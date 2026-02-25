@@ -24,17 +24,22 @@ import {
   LifeBuoy
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { uploadFile } from "@/lib/upload"
 import { toast } from "sonner"
 
 export default function MySettings() {
   const { userProfile, updateProfile, isLoading } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordError, setPasswordError] = useState("")
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [newEmail, setNewEmail] = useState("")
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Loading guard - prevent runtime errors
@@ -71,15 +76,19 @@ export default function MySettings() {
     }
   ]
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const base64String = reader.result as string
-        setPhotoPreview(base64String)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+    setIsUploadingPhoto(true)
+    try {
+      const url = await uploadFile(file, "profile")
+      setPhotoPreview(url)
+      toast.success("Photo uploaded. Click Save to update your profile.")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed")
+    } finally {
+      setIsUploadingPhoto(false)
+      event.target.value = ""
     }
   }
 
@@ -112,17 +121,44 @@ export default function MySettings() {
     setIsEditing(false)
   }
 
-  const handleChangePassword = () => {
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match!")
+  const handleChangePassword = async () => {
+    setPasswordError("")
+    if (!currentPassword.trim()) {
+      setPasswordError("Enter your current password.")
       return
     }
-    
-    // In a real app, this would call an API
-    toast.success("Password changed successfully!")
-    setIsPasswordDialogOpen(false)
-    setNewPassword("")
-    setConfirmPassword("")
+    if (newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters.")
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password and confirmation do not match.")
+      return
+    }
+    setIsChangingPassword(true)
+    try {
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userProfile.email, password: currentPassword }),
+        credentials: "include",
+      })
+      if (!loginRes.ok) {
+        setPasswordError("Current password is incorrect.")
+        return
+      }
+      await updateProfile({ ...userProfile, password: newPassword })
+      toast.success("Password changed successfully. Use your new password next time you sign in.")
+      setIsPasswordDialogOpen(false)
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch {
+      setPasswordError("Something went wrong. Please try again.")
+      toast.error("Failed to change password.")
+    } finally {
+      setIsChangingPassword(false)
+    }
   }
 
   const handleChangeEmail = () => {
@@ -228,8 +264,9 @@ export default function MySettings() {
                       <Button
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingPhoto}
                       >
-                        Upload Photo
+                        {isUploadingPhoto ? "Uploading…" : "Upload Photo"}
                       </Button>
                     </div>
                   )}
@@ -285,7 +322,7 @@ export default function MySettings() {
 
               {isEditing && (
                 <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 pt-4">
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 w-full sm:w-auto">
+                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 dark:active:bg-teal-400 w-full sm:w-auto">
                     Save Profile
                   </Button>
                   <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto">
@@ -345,7 +382,7 @@ export default function MySettings() {
 
               {isEditing && (
                 <div className="flex gap-4 pt-4">
-                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700">
+                  <Button onClick={handleSave} className="bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 dark:active:bg-teal-400">
                     Save Preferences
                   </Button>
                   <Button variant="outline" onClick={handleCancel}>
@@ -380,39 +417,65 @@ export default function MySettings() {
                     <DialogHeader>
                       <DialogTitle>Change Password</DialogTitle>
                       <DialogDescription>
-                        Enter your new password below.
+                        Enter your current password, then your new password twice.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
+                      {passwordError && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{passwordError}</AlertDescription>
+                        </Alert>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="currentPassword">Current Password</Label>
+                        <Input
+                          id="currentPassword"
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => { setCurrentPassword(e.target.value); setPasswordError("") }}
+                          placeholder="Enter current password"
+                          autoComplete="current-password"
+                        />
+                      </div>
                       <div className="space-y-2">
                         <Label htmlFor="newPassword">New Password</Label>
                         <Input
                           id="newPassword"
                           type="password"
                           value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="Enter new password"
+                          onChange={(e) => { setNewPassword(e.target.value); setPasswordError("") }}
+                          placeholder="At least 8 characters"
+                          autoComplete="new-password"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirm Password</Label>
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
                         <Input
                           id="confirmPassword"
                           type="password"
                           value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError("") }}
                           placeholder="Confirm new password"
+                          autoComplete="new-password"
                         />
                       </div>
                       <div className="flex gap-4 pt-4">
-                        <Button onClick={handleChangePassword} disabled={!newPassword || !confirmPassword}>
-                          Change Password
+                        <Button
+                          onClick={handleChangePassword}
+                          disabled={!currentPassword || !newPassword || !confirmPassword || isChangingPassword}
+                        >
+                          {isChangingPassword ? "Updating…" : "Change Password"}
                         </Button>
-                        <Button variant="outline" onClick={() => {
-                          setIsPasswordDialogOpen(false)
-                          setNewPassword("")
-                          setConfirmPassword("")
-                        }}>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsPasswordDialogOpen(false)
+                            setCurrentPassword("")
+                            setNewPassword("")
+                            setConfirmPassword("")
+                            setPasswordError("")
+                          }}
+                        >
                           Cancel
                         </Button>
                       </div>

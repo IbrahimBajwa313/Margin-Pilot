@@ -70,7 +70,7 @@ export default function SettingsPage() {
 
   const handleClearAllData = () => {
     if (confirm("Are you sure you want to clear all data? Workshop will be reset and you will be logged out.")) {
-      fetch("/api/workshop/seed", { method: "POST" }).finally(() => {
+      fetch("/api/workshop/seed", { method: "POST", credentials: "include" }).finally(() => {
         logout()
         window.location.href = "/"
       })

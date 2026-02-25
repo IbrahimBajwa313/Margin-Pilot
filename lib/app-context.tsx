@@ -110,34 +110,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [dataError, setDataError] = useState<string | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load workshop data from API on mount; seed if empty
+  // Load workshop data from API on mount (scoped to logged-in user via cookie); seed if empty
   useEffect(() => {
     let cancelled = false
     async function load() {
       try {
         setDataError(null)
-        const res = await fetch(WORKSHOP_API)
+        const res = await fetch(WORKSHOP_API, { credentials: "include" })
         if (cancelled) return
+        if (res.status === 401) {
+          setDataLoading(false)
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("workshop_session_active")
+            window.location.href = "/"
+          }
+          return
+        }
         if (res.status === 404) {
-          const seedRes = await fetch(`${WORKSHOP_API}/seed`, { method: "POST" })
+          const seedRes = await fetch(`${WORKSHOP_API}/seed`, { method: "POST", credentials: "include" })
           if (cancelled) return
           if (!seedRes.ok) {
             const err = await seedRes.json().catch(() => ({}))
             setDataError(err?.error || "Failed to seed workshop")
+            setDataLoading(false)
             return
           }
-          const refetch = await fetch(WORKSHOP_API)
+          const refetch = await fetch(WORKSHOP_API, { credentials: "include" })
           if (cancelled) return
           if (!refetch.ok) {
             setDataError("Failed to load workshop after seed")
+            setDataLoading(false)
             return
           }
           const json = await refetch.json()
           setData(normalizeWorkshopResponse(json))
+          setDataLoading(false)
           return
         }
         if (!res.ok) {
           setDataError("Failed to load workshop data")
+          setDataLoading(false)
           return
         }
         const json = await res.json()
@@ -159,7 +171,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     saveTimeoutRef.current = setTimeout(() => {
       saveTimeoutRef.current = null
       const payload = { ...data }
-      fetch(WORKSHOP_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {})
+      fetch(WORKSHOP_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), credentials: "include" }).catch(() => {})
     }, 600)
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current) }
   }, [data, dataLoading])
