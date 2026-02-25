@@ -13,7 +13,7 @@ const InviteSchema = new Schema(
   { timestamps: true }
 )
 
-InviteSchema.index({ token: 1 })
+// token already has unique index via { unique: true } in schema
 InviteSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }) // optional TTL
 
 export default mongoose.models.Invite || mongoose.model("Invite", InviteSchema)

@@ -1,4 +1,5 @@
 import type React from "react"
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
@@ -50,9 +51,17 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-foreground">
         <AuthProvider>
           <AppProvider>
-            <AuthGuard>
-              {children}
-            </AuthGuard>
+            <Suspense
+              fallback={
+                <div className="min-h-screen bg-background flex items-center justify-center p-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              }
+            >
+              <AuthGuard>
+                {children}
+              </AuthGuard>
+            </Suspense>
           </AppProvider>
           <Toaster position="top-center" richColors closeButton />
           <Analytics />
