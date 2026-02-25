@@ -3,123 +3,75 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ==========================================================================
+   MarginPilot Global Design System — Dark mode only. No light mode.
+   ========================================================================== */
+
 :root {
-  /* Light Mode - MarginPilot friendly */
-  --background: #F0F4F8;
-  --foreground: #0F172A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #2FD3C6;
-  --primary-foreground: #0B0F14;
-  --secondary: #E2E8F0;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #E0F7F5;
-  --accent-foreground: #0F172A;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --border: #E2E8F0;
-  --input: #F8FAFC;
-  --ring: #2FD3C6;
+  /* MP Design Tokens */
+  --mp-bg: #0B0F14;
+  --mp-panel: #111826;
+  --mp-panel-2: #0E1624;
+  --mp-border: rgba(255, 255, 255, 0.08);
+  --mp-text: rgba(255, 255, 255, 0.92);
+  --mp-muted: rgba(255, 255, 255, 0.52);
+
+  --mp-teal: #2FD3C6;
+  --mp-green: #4ADE80;
+  --mp-purple: #A78BFA;
+  --mp-amber: #FBBF24;
+  --mp-blue: #60A5FA;
+  --mp-red: #F87171;
+
+  /* Map theme vars to MP tokens (for Tailwind and existing components) */
+  --background: var(--mp-bg);
+  --foreground: var(--mp-text);
+  --card: var(--mp-panel);
+  --card-foreground: var(--mp-text);
+  --popover: var(--mp-panel);
+  --popover-foreground: var(--mp-text);
+  --primary: var(--mp-teal);
+  --primary-foreground: var(--mp-bg);
+  --secondary: var(--mp-panel-2);
+  --secondary-foreground: var(--mp-text);
+  --muted: var(--mp-panel-2);
+  --muted-foreground: var(--mp-muted);
+  --accent: rgba(255, 255, 255, 0.04);
+  --accent-foreground: var(--mp-teal);
+  --destructive: var(--mp-red);
+  --destructive-foreground: var(--mp-text);
+  --success: var(--mp-green);
+  --warning: var(--mp-amber);
+  --border: var(--mp-border);
+  --input: rgba(255, 255, 255, 0.04);
+  --ring: var(--mp-teal);
   --radius: 0.75rem;
 
-  /* Chart Colors */
-  --chart-1: #0F172A;
-  --chart-2: #10B981;
-  --chart-3: #38BDF8;
-  --chart-4: #F59E0B;
-  --chart-5: #EF4444;
+  --chart-1: var(--mp-green);
+  --chart-2: var(--mp-purple);
+  --chart-3: var(--mp-blue);
+  --chart-4: var(--mp-amber);
+  --chart-5: var(--mp-red);
 
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #0F172A;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #0F172A;
+  --sidebar: var(--mp-panel);
+  --sidebar-foreground: var(--mp-text);
+  --sidebar-primary: var(--mp-teal);
+  --sidebar-primary-foreground: var(--mp-bg);
+  --sidebar-accent: var(--mp-panel-2);
+  --sidebar-accent-foreground: var(--mp-teal);
+  --sidebar-border: var(--mp-border);
+  --sidebar-ring: var(--mp-teal);
 
-  --gradient-primary: linear-gradient(135deg, #2FD3C6 0%, #22c9bd 100%);
-  --gradient-card: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
-  --gradient-sidebar: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
-}
-
-.dark {
-  /* MarginPilot Premium Dark Mode */
-  --background: #0B0F14;
-  /* Very dark charcoal / near black */
-  --foreground: #FFFFFF;
-
-  --card: #111826;
-  /* Dark grey, slightly lighter than background */
-  --card-foreground: #FFFFFF;
-
-  --popover: #111826;
-  --popover-foreground: #FFFFFF;
-
-  --primary: #2FD3C6;
-  /* Teal / Aqua */
-  --primary-foreground: #0B0F14;
-
-  --secondary: #1F2937;
-  --secondary-foreground: #FFFFFF;
-
-  --muted: #1F2937;
-  --muted-foreground: #9CA3AF;
-  /* Light grey */
-
-  --accent: #1F2937;
-  --accent-foreground: #2FD3C6;
-
-  --destructive: #F87171;
-  /* Red */
-  --destructive-foreground: #0B0F14;
-
-  --success: #4ADE80;
-  /* Green */
-  --warning: #FBBF24;
-  /* Amber */
-
-  --border: #1F2937;
-  /* Minimal usage */
-  --input: #111826;
-  --ring: #2FD3C6;
-
-  /* Chart Colors matching purpose-driven scheme */
-  --chart-1: #4ADE80;
-  /* Green - Targets */
-  --chart-2: #A78BFA;
-  /* Purple - Profit */
-  --chart-3: #60A5FA;
-  /* Blue - Progress */
-  --chart-4: #FBBF24;
-  /* Amber - Costs */
-  --chart-5: #F87171;
-  /* Red - Warnings */
-
-  --sidebar: #111826;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #2FD3C6;
-  --sidebar-primary-foreground: #0B0F14;
-  --sidebar-accent: #1F2937;
-  --sidebar-accent-foreground: #2FD3C6;
-  --sidebar-border: #1F2937;
-  --sidebar-ring: #2FD3C6;
-
-  /* Subtle gradients */
-  --gradient-primary: linear-gradient(135deg, #2FD3C6 0%, #22D3EE 100%);
-  --gradient-card: linear-gradient(180deg, #111826 0%, #0E1624 100%);
-  --gradient-sidebar: linear-gradient(180deg, #111826 0%, #0B0F14 100%);
+  --gradient-card: linear-gradient(180deg, var(--mp-panel), var(--mp-panel-2));
+  --gradient-sidebar: linear-gradient(180deg, var(--mp-panel), var(--mp-panel-2));
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  /* Typography: set via Next.js font variables on body; fallbacks for SSR */
+  --font-sans: var(--font-sans, "DM Sans", ui-sans-serif, system-ui, sans-serif);
+  --font-mono: ui-monospace, monospace;
+  --font-display: var(--font-display, "Syne", ui-sans-serif, system-ui, sans-serif);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -146,10 +98,10 @@
   --color-chart-5: var(--chart-5);
   --color-success: var(--success);
   --color-warning: var(--warning);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -159,13 +111,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Semantic color utilities */
-  --color-success: var(--success);
-  --color-success-foreground: #FFFFFF;
-  --color-warning: var(--warning);
-  --color-warning-foreground: #FFFFFF;
-  --color-info: #3B82F6;
-  --color-info-foreground: #FFFFFF;
+  /* MP semantic colors (use by meaning only) */
+  --color-mp-teal: var(--mp-teal);
+  --color-mp-green: var(--mp-green);
+  --color-mp-purple: var(--mp-purple);
+  --color-mp-amber: var(--mp-amber);
+  --color-mp-blue: var(--mp-blue);
+  --color-mp-red: var(--mp-red);
 }
 
 @layer base {
@@ -173,143 +125,123 @@
     @apply border-border outline-ring/50;
   }
 
+  /* Page-level background: MP glow (fixed, z-index 0). Dark only. */
   body {
-    @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.04) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.04) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.02) 0px, transparent 50%);
+    @apply text-foreground;
+    background:
+      radial-gradient(900px 500px at 15% -5%, rgba(47, 211, 198, 0.10) 0%, transparent 60%),
+      radial-gradient(700px 400px at 85% 10%, rgba(167, 139, 250, 0.08) 0%, transparent 55%),
+      var(--mp-bg);
+    min-height: 100vh;
   }
 
-  .dark body {
-    background-image:
-      radial-gradient(at 0% 0%, rgba(47, 211, 198, 0.03) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(11, 15, 20, 0) 0px, transparent 50%),
-      radial-gradient(at 50% 50%, rgba(17, 24, 38, 0.5) 0px, transparent 50%);
-  }
-
-  /* Theme-aware card panel (light + dark) */
+  /* Cards / panels: gradient + 16px radius, 1px border */
   .card-panel {
-    background: var(--gradient-card);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
+    background: linear-gradient(180deg, var(--mp-panel), var(--mp-panel-2));
+    border: 1px solid var(--mp-border);
+    border-radius: 16px;
   }
 
-  /* Premium card styling */
+  [data-slot="card"],
   [class*="card"] {
-    @apply shadow-sm border border-border;
+    background: linear-gradient(180deg, var(--mp-panel), var(--mp-panel-2));
+    border: 1px solid var(--mp-border);
+    border-radius: 16px;
     backdrop-filter: blur(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--card);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
-
-
-  /* Premium card with gradient overlay */
-  [class*="card"][class*="gradient"] {
-    background: var(--gradient-card);
+  [data-slot="card"]:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
-  /* Premium button enhancements */
-  button[class*="bg-primary"] {
-    background: var(--gradient-primary);
-    transition: all 0.2s ease;
-  }
-
-
-  /* Enhanced focus states */
+  /* Focus states */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary/50;
+    outline: 2px solid color-mix(in srgb, var(--ring) 50%, transparent);
+    outline-offset: 2px;
   }
 
-  /* Premium table styling */
   table {
     @apply border-collapse;
   }
 
   th {
-    @apply font-semibold text-foreground/90;
+    color: var(--mp-text);
+    font-weight: 600;
   }
 
-  /* Enhanced badge styling */
-  [class*="badge"] {
-    @apply transition-all duration-200;
-  }
-
-  /* Premium select/dropdown */
   [role="combobox"],
   [role="listbox"] {
     @apply transition-all duration-200;
   }
 
-  /* Enhanced modal/dialog */
   [role="dialog"] {
     @apply backdrop-blur-sm;
+    border: 1px solid var(--mp-border);
   }
 
-  /* Premium link styling */
   a:not([class*="button"]):not([class*="link"]) {
-    @apply text-primary hover:text-primary/80 transition-colors;
+    color: var(--mp-teal);
+    transition: color 0.2s ease;
   }
 
-  /* Enhanced separator */
+  a:not([class*="button"]):not([class*="link"]):hover {
+    color: color-mix(in srgb, var(--mp-teal) 80%, white);
+  }
+
   [class*="separator"] {
-    @apply bg-border/50;
+    background: var(--mp-border);
   }
 
-  /* Premium sidebar enhancements */
   [data-slot="sidebar"],
   aside[class*="sidebar"],
   aside[class*="bg-sidebar"] {
-    background: var(--gradient-sidebar);
+    background: linear-gradient(180deg, var(--mp-panel), var(--mp-panel-2));
   }
 
-  /* Enhanced navigation hover states */
+  /* Inputs: never bright — rgba(255,255,255,0.04) */
+  input,
+  textarea,
+  select {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--mp-border);
+    border-radius: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
 
-
-
-  /* Enhanced input focus glow - theme aware */
   input:focus,
   textarea:focus,
   select:focus {
+    border-color: color-mix(in srgb, var(--mp-teal) 60%, transparent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent);
   }
 
-  /* Premium badge styling */
-  [class*="badge"] {
-    @apply font-medium;
-  }
-
-  /* Enhanced table row hover */
   tbody tr:hover {
-    @apply bg-muted/50;
+    background: rgba(255, 255, 255, 0.04);
   }
 
-  /* Premium progress bars */
   [role="progressbar"] {
-    @apply transition-all duration-300;
+    transition: all 0.3s ease;
   }
 
-  /* Enhanced tooltip styling */
   [role="tooltip"] {
     @apply backdrop-blur-sm;
   }
 
-  /* Premium divider/separator */
   hr {
-    @apply border-border/50;
+    border-color: var(--mp-border);
   }
 
-  /* Enhanced dropdown menus */
   [role="menu"] {
-    @apply backdrop-blur-xl shadow-xl;
-    border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--mp-border);
+    background: color-mix(in srgb, var(--mp-panel) 95%, transparent);
   }
 
-  /* Premium scrollbar for sidebar */
   aside nav {
     scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
 
   aside nav::-webkit-scrollbar {
@@ -321,127 +253,77 @@
   }
 
   aside nav::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, 0.3);
+    background-color: rgba(255, 255, 255, 0.15);
     border-radius: 3px;
   }
 
   aside nav::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(148, 163, 184, 0.5);
+    background-color: rgba(255, 255, 255, 0.25);
   }
 
-  .dark aside nav::-webkit-scrollbar-thumb {
-    background-color: rgba(100, 116, 139, 0.3);
-  }
-
-  .dark aside nav::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(100, 116, 139, 0.5);
-  }
-
-  /* Hide scrollbar but keep scroll functionality (sidebar, etc.) */
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  /* Premium glassmorphism effect */
+  /* MP glass (dark only) */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(11, 15, 20, 0.72);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--mp-border);
   }
 
-  .dark .glass {
-    background: rgba(19, 24, 41, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  /* Enhanced gradient text */
+  /* Gradient text: teal (primary) */
   .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--mp-teal);
+    -webkit-text-fill-color: var(--mp-teal);
   }
 
-  /* Premium shimmer effect for loading states */
   @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-
-    100% {
-      background-position: 1000px 0;
-    }
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
   }
 
   .shimmer {
     animation: shimmer 2s infinite;
-    background: linear-gradient(to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 100%);
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
     background-size: 1000px 100%;
   }
 
-  .dark .shimmer {
-    background: linear-gradient(to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        transparent 100%);
-    background-size: 1000px 100%;
-  }
-
-  /* Enhanced focus ring animations */
   *:focus-visible {
     animation: focusRing 0.3s ease-out;
   }
 
   @keyframes focusRing {
-    0% {
-      outline-offset: 0px;
-      outline-width: 0px;
-    }
-
-    100% {
-      outline-offset: 2px;
-      outline-width: 2px;
-    }
+    0% { outline-offset: 0; outline-width: 0; }
+    100% { outline-offset: 2px; outline-width: 2px; }
   }
 
-  /* Premium border glow effect */
   .border-glow {
-    box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(14, 165, 233, 0.1);
+    box-shadow: 0 0 0 1px var(--mp-teal), 0 0 22px rgba(47, 211, 198, 0.22);
   }
 
-  .dark .border-glow {
-    box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(56, 189, 248, 0.15);
-  }
-
-  /* Enhanced input styling */
-  input,
-  textarea,
-  select {
-    @apply transition-all duration-200;
-  }
-
-  input:focus,
-  textarea:focus,
-  select:focus {
-    @apply ring-2 ring-primary/20 border-primary/50;
-  }
-
-  /* Premium button enhancements */
   button {
     @apply transition-all duration-200;
   }
 
-  /* Smooth scrollbar */
+  /* Display/headings: Syne (weight 700–800) */
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -454,20 +336,147 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, 0.3);
+    background-color: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(148, 163, 184, 0.5);
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* ==========================================================================
+   MP Design System — Interactive & component utilities
+   ========================================================================== */
+
+@layer components {
+  /* Primary button: teal tint, no solid fill */
+  .mp-btn-primary {
+    background: rgba(47, 211, 198, 0.14);
+    border: 1px solid rgba(47, 211, 198, 0.35);
+    color: var(--mp-teal);
+    box-shadow: 0 0 22px rgba(47, 211, 198, 0.22);
+    border-radius: 12px;
   }
 
-  .dark *::-webkit-scrollbar-thumb {
-    background-color: rgba(100, 116, 139, 0.3);
+  .mp-btn-primary:hover {
+    background: rgba(47, 211, 198, 0.2);
+    border-color: rgba(47, 211, 198, 0.5);
+    box-shadow: 0 0 26px rgba(47, 211, 198, 0.28);
   }
 
-  .dark *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(100, 116, 139, 0.5);
+  /* Ghost / secondary button */
+  .mp-btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--mp-border);
+    color: var(--mp-text);
+    border-radius: 12px;
+  }
+
+  .mp-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  /* Danger button (delete only) */
+  .mp-btn-danger {
+    color: var(--mp-red);
+    border: 1px solid var(--mp-border);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+  }
+
+  .mp-btn-danger:hover {
+    background: rgba(248, 113, 113, 0.1);
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+
+  /* Progress bar track */
+  .mp-progress-track {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    height: 8px;
+  }
+
+  .mp-progress-fill-targets {
+    background: var(--mp-green);
+    box-shadow: 0 0 18px rgba(74, 222, 128, 0.55);
+  }
+
+  .mp-progress-fill-milestones {
+    background: var(--mp-teal);
+    box-shadow: 0 0 18px rgba(47, 211, 198, 0.55);
+  }
+
+  .mp-progress-fill-costs {
+    background: var(--mp-amber);
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.55);
+  }
+
+  /* Navigation bar */
+  .mp-nav {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(14px);
+    background: rgba(11, 15, 20, 0.72);
+    border-bottom: 1px solid var(--mp-border);
+  }
+
+  /* Status pills: Healthy (green), Tight (amber), Risk (red) */
+  .mp-status-pill {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--mp-border);
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 12px;
+  }
+
+  .mp-status-pill-healthy {
+    color: var(--mp-green);
+  }
+
+  .mp-status-pill-healthy::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mp-green);
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.66);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .mp-status-pill-tight {
+    color: var(--mp-amber);
+  }
+
+  .mp-status-pill-tight::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mp-amber);
+    box-shadow: 0 0 16px rgba(251, 191, 36, 0.66);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .mp-status-pill-risk {
+    color: var(--mp-red);
+  }
+
+  .mp-status-pill-risk::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mp-red);
+    box-shadow: 0 0 16px rgba(248, 113, 113, 0.66);
+    margin-right: 6px;
+    vertical-align: middle;
   }
 }
 

@@ -205,7 +205,7 @@ export default function MySettings() {
     <div className="flex-1 space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 pt-4 md:pt-6 min-h-screen pb-20 min-w-0">
       {/* Header Section */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white min-w-0">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground font-display min-w-0">
           My Settings
         </h2>
         {!isEditing && (

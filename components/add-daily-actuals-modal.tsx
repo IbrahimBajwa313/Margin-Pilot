@@ -142,7 +142,7 @@ export function AddDailyActualsModal({ isOpen, onClose }: AddDailyActualsModalPr
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 dark:active:bg-primary/70">
+          <Button onClick={handleSubmit}>
             Submit Entry
           </Button>
         </div>

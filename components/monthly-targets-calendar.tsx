@@ -167,7 +167,7 @@ export function MonthlyTargetsCalendar() {
                       {symbol}{monthData.dailyTarget.toFixed(2)}
                     </TableCell>
                     
-                    <TableCell className="text-right font-semibold dark:text-white text-slate-900">
+                    <TableCell className="text-right font-semibold text-foreground">
                       {symbol}{monthData.monthlyTarget.toFixed(2)}
                     </TableCell>
                   </TableRow>
@@ -181,7 +181,7 @@ export function MonthlyTargetsCalendar() {
                 <TableCell className="text-center font-bold">
                   {monthlyData.reduce((sum, month) => sum + month.workingDays, 0)}
                 </TableCell>
-                <TableCell className="text-right dark:text-white font-bold text-slate-900">
+                <TableCell className="text-right font-bold text-foreground">
                   {symbol}{monthlyData.reduce((sum, month) => sum + month.monthlyTarget, 0).toFixed(2)}
                 </TableCell>
               </TableRow>

@@ -92,7 +92,7 @@ export function SignInScreen({ onSwitchToSignup, successMessage, clearSuccessMes
           </div>
 
           <div className="space-y-2">
-            <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-foreground font-display">
               Welcome Back
             </CardTitle>
             <CardDescription className="text-slate-500 dark:text-slate-400 text-sm">
@@ -177,7 +177,7 @@ export function SignInScreen({ onSwitchToSignup, successMessage, clearSuccessMes
           <CardFooter className="flex flex-col space-y-4 pt-4 md:pt-6 px-0">
             <Button
               type="submit"
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+              className="w-full h-12 font-bold rounded-lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Signing In..." : "Sign In"}

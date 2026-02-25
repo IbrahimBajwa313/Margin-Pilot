@@ -97,7 +97,7 @@ export default function ToolsPage() {
                 </CardContent>
                 <CardFooter className="mt-auto pt-4">
                   <Link href={tool.href} className="w-full">
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 dark:shadow-[0_0_20px_rgba(47,211,198,0.25)]">
+                    <Button className="w-full">
                       Open Calculator
                     </Button>
                   </Link>
@@ -131,7 +131,7 @@ export default function ToolsPage() {
                 </CardContent>
                 <CardFooter className="mt-auto pt-4">
                   <Link href={tool.href} className="w-full">
-                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 dark:shadow-[0_0_20px_rgba(47,211,198,0.25)]">
+                    <Button className="w-full">
                       Open Calculator
                     </Button>
                   </Link>

@@ -1,7 +1,7 @@
 import type React from "react"
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Syne, DM_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AppProvider } from "@/lib/app-context"
@@ -9,8 +9,8 @@ import { AuthProvider } from "@/lib/auth-context"
 import { AuthGuard } from "@/components/auth-guard"
 import { Toaster } from "sonner"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const syne = Syne({ subsets: ["latin"], weight: ["700", "800"], variable: "--font-display" })
+const dmSans = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
   title: "MarginPilot",
@@ -40,15 +40,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('workshop_theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t!=='light'&&d))document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');})();`,
+            __html: `(function(){document.documentElement.classList.add('dark');})();`,
           }}
         />
       </head>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-background text-foreground`}>
         <AuthProvider>
           <AppProvider>
             <Suspense
@@ -63,7 +63,7 @@ export default function RootLayout({
               </AuthGuard>
             </Suspense>
           </AppProvider>
-          <Toaster position="top-center" richColors closeButton />
+          <Toaster position="top-center" theme="dark" richColors closeButton />
           <Analytics />
         </AuthProvider>
       </body>

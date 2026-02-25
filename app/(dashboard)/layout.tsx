@@ -52,7 +52,7 @@ export default function DashboardLayout({
               variant="ghost"
               size="icon"
               onClick={() => setIsSidebarOpen(true)}
-              className="h-8 w-8 rounded-full shadow-lg bg-card/80 backdrop-blur-sm border border-border/50 transition-colors duration-200  "
+              className="h-8 w-8 rounded-full shadow-lg mp-btn-ghost"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>

@@ -83,31 +83,16 @@ export const calculateDailyStatus = (actual: number, target: number): "green" | 
 
 const THEME_KEY = "workshop_theme"
 
-function getInitialTheme(): boolean {
-  if (typeof window === "undefined") return false
-  const stored = localStorage.getItem(THEME_KEY)
-  if (stored === "dark") return true
-  if (stored === "light") return false
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-}
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth()
-  const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  /* MarginPilot: dark mode only. Force dark class and persist. */
   useEffect(() => {
-    const dark = getInitialTheme()
-    setIsDark(dark)
-    document.documentElement.classList.toggle("dark", dark)
+    document.documentElement.classList.add("dark")
+    if (typeof window !== "undefined") localStorage.setItem(THEME_KEY, "dark")
     setMounted(true)
   }, [])
-
-  useEffect(() => {
-    if (!mounted) return
-    localStorage.setItem(THEME_KEY, isDark ? "dark" : "light")
-    document.documentElement.classList.toggle("dark", isDark)
-  }, [isDark, mounted])
 
   const [data, setData] = useState<WorkshopData>(getEmptyWorkshopData)
   const [dataLoading, setDataLoading] = useState(true)
@@ -258,11 +243,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   function toggleTheme() {
-    setIsDark((prev) => !prev)
+    /* No-op: MarginPilot is dark mode only */
   }
 
   return (
-    <AppContext.Provider value={{ data, updateData, updateMonthDays, toggleTheme, isDark, dataLoading, dataError, refreshWorkshopData, calculatedTargets, efficiency }}>
+    <AppContext.Provider value={{ data, updateData, updateMonthDays, toggleTheme, isDark: true, dataLoading, dataError, refreshWorkshopData, calculatedTargets, efficiency }}>
       {children}
     </AppContext.Provider>
   )

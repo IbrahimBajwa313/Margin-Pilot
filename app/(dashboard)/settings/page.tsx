@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useAppContext } from "@/lib/app-context"
@@ -13,7 +12,7 @@ import { useAuth } from "@/lib/auth-context"
 import { ExternalLink, Book, Mail, Trash2, User, Settings, Building } from "lucide-react"
 
 export default function SettingsPage() {
-  const { data, updateData, toggleTheme, isDark } = useAppContext()
+  const { data, updateData } = useAppContext()
   const { userProfile, updateProfile, logout } = useAuth()
   
   const [profile, setProfile] = useState({
@@ -23,7 +22,6 @@ export default function SettingsPage() {
     email: ""
   })
   const [currency, setCurrency] = useState("EUR")
-  const [darkMode, setDarkMode] = useState(isDark)
 
   useEffect(() => {
     if (userProfile) {
@@ -38,9 +36,6 @@ export default function SettingsPage() {
   useEffect(() => {
     setCurrency(data.userPreferences?.currency || "EUR")
   }, [data.userPreferences?.currency])
-  useEffect(() => {
-    setDarkMode(isDark)
-  }, [isDark])
 
   const handleProfileSave = () => {
     if (!userProfile) return
@@ -60,12 +55,6 @@ export default function SettingsPage() {
         darkMode: data.userPreferences?.darkMode ?? false
       }
     })
-  }
-
-  // Handle dark mode toggle
-  const handleDarkModeToggle = () => {
-    setDarkMode(!darkMode)
-    toggleTheme()
   }
 
   const handleClearAllData = () => {
@@ -218,16 +207,11 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="darkMode">Dark Mode</Label>
+                <Label>Theme</Label>
                 <p className="text-sm text-muted-foreground">
-                  Toggle dark mode theme across the application
+                  MarginPilot uses dark mode only
                 </p>
               </div>
-              <Switch
-                id="darkMode"
-                checked={darkMode}
-                onCheckedChange={handleDarkModeToggle}
-              />
             </div>
 
             <div className="space-y-2">
@@ -252,7 +236,7 @@ export default function SettingsPage() {
 
           {/* Danger Zone */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-destructive">Danger Zone</h3>
+            <h3 className="text-lg font-medium text-[var(--mp-red)]">Danger Zone</h3>
             <p className="text-sm text-muted-foreground">
               Irreversible actions that affect your data
             </p>
@@ -284,8 +268,8 @@ export default function SettingsPage() {
             {/* Community Card */}
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ExternalLink className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 bg-[rgba(96,165,250,0.14)] rounded-full flex items-center justify-center mx-auto mb-4 border border-[rgba(96,165,250,0.25)]">
+                  <ExternalLink className="w-6 h-6 text-[var(--mp-blue)]" />
                 </div>
                 <h3 className="font-semibold mb-2">Community</h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -300,8 +284,8 @@ export default function SettingsPage() {
             {/* Documentation Card */}
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Book className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <div className="w-12 h-12 bg-[rgba(74,222,128,0.14)] rounded-full flex items-center justify-center mx-auto mb-4 border border-[rgba(74,222,128,0.25)]">
+                  <Book className="w-6 h-6 text-[var(--mp-green)]" />
                 </div>
                 <h3 className="font-semibold mb-2">Documentation</h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -316,8 +300,8 @@ export default function SettingsPage() {
             {/* Support Card */}
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                <div className="w-12 h-12 bg-[rgba(167,139,250,0.14)] rounded-full flex items-center justify-center mx-auto mb-4 border border-[rgba(167,139,250,0.25)]">
+                  <Mail className="w-6 h-6 text-[var(--mp-purple)]" />
                 </div>
                 <h3 className="font-semibold mb-2">Support</h3>
                 <p className="text-sm text-muted-foreground mb-4">

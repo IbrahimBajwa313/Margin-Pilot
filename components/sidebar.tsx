@@ -116,7 +116,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden fixed top-4 left-4 z-[55] h-10 w-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm hover:bg-accent/50 dark:hover:bg-white/10 dark:active:bg-white/15"
+        className="lg:hidden fixed top-4 left-4 z-[55] h-10 w-10 rounded-xl mp-btn-ghost shadow-sm"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label={isMobileOpen ? "Close menu" : "Open menu"}
       >
@@ -154,7 +154,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              className="hidden lg:flex h-8 w-8 shrink-0 dark:hover:bg-white/10 dark:active:bg-white/15"
+              className="hidden lg:flex h-8 w-8 shrink-0"
             >
               {isOpen ? (
                 <ChevronLeft className="w-4 h-4" />
@@ -190,13 +190,13 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
                   className={`
                     w-full justify-start gap-3 rounded-lg transition-all duration-200 group
                     ${isActive
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90'
-                      : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-white/10 dark:hover:text-sidebar-foreground dark:active:bg-white/15'
+                      ? 'bg-[rgba(47,211,198,0.14)] text-[var(--mp-teal)] border border-[rgba(47,211,198,0.35)]'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                     }
                     ${isOpen ? 'px-3' : 'px-2'}
                   `}
                 >
-                  <Icon className={`h-5 w-5 mr-3 transition-colors ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground/60 group-hover:text-primary'}`} />
+                  <Icon className={`h-5 w-5 mr-3 transition-colors ${isActive ? 'text-[var(--mp-teal)]' : 'text-muted-foreground group-hover:text-[var(--mp-teal)]'}`} />
                   <span className={`text-sm transition-all duration-200 ${isOpen ? 'opacity-100 max-w-32' : 'opacity-0 max-w-0 overflow-hidden'}`}>
                     {label}
                   </span>
@@ -209,7 +209,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
         {/* Footer - extra bottom padding on mobile so user + Log Out stay above browser home bar */}
         <div className={`p-4 pb-24 lg:pb-4 border-t border-sidebar-border space-y-3 transition-all duration-200 bg-sidebar/50 backdrop-blur-sm shrink-0 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/30 flex items-center justify-center ring-2 ring-primary/10 overflow-hidden shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[rgba(47,211,198,0.14)] flex items-center justify-center ring-2 ring-[rgba(47,211,198,0.2)] overflow-hidden shrink-0">
               {userProfile?.photo ? (
                 <img
                   src={userProfile.photo}
@@ -217,7 +217,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-xs font-bold text-primary dark:text-primary">{getUserInitials()}</span>
+                <span className="text-xs font-bold text-[var(--mp-teal)]">{getUserInitials()}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -227,7 +227,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobileOpen: controlledMobileOpen,
           </div>
           <Button
             variant="outline"
-            className="w-full text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent dark:hover:bg-white/10 dark:hover:text-sidebar-foreground dark:active:bg-white/15 justify-start gap-2 text-xs bg-transparent border-sidebar-border"
+            className="w-full justify-start gap-2 text-xs mp-btn-ghost"
             onClick={logout}
           >
             <LogOut className="w-4 h-4" />

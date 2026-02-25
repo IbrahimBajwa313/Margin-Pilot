@@ -187,7 +187,7 @@ export default function LoanCalculatorPage() {
                 saveLoan(bankName)
                 setBankName("")
               }}
-              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" />
               Save loan

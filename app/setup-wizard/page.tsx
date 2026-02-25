@@ -343,7 +343,7 @@ export default function SetupWizard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-teal-900/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-white dark:bg-slate-800 shadow-2xl rounded-2xl">
+      <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
         <CardHeader className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
@@ -372,7 +372,7 @@ export default function SetupWizard() {
               <Button
                 onClick={handleSubmit}
                 disabled={!companyName || !branchData.name || isSubmitting}
-                className="h-11 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200"
+                className="h-11"
               >
                 {isSubmitting ? (
                   "Creating..."
@@ -387,7 +387,7 @@ export default function SetupWizard() {
               <Button
                 onClick={handleNext}
                 disabled={(currentStep === 1 && !companyName) || (currentStep === 2 && !branchData.name)}
-                className="h-11 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200"
+                className="h-11"
               >
                 Next
                 <ArrowRight className="h-4 w-4 ml-2" />

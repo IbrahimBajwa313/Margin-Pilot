@@ -139,7 +139,7 @@ export default function CompanySettings() {
     <div className="flex-1 space-y-6 p-8 pt-6 min-h-screen pb-20">
       {/* Header Section */}
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground font-display">
           Company Settings
         </h2>
         {!isEditing && (

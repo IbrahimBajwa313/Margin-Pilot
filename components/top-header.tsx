@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useAppContext } from "@/lib/app-context"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Plus, PanelLeft } from "lucide-react"
+import { Plus, PanelLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AddDailyActualsModal } from "@/components/add-daily-actuals-modal"
 
@@ -14,12 +14,12 @@ interface TopHeaderProps {
 }
 
 export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenuOpen }: TopHeaderProps) {
-  const { toggleTheme, isDark, data, updateData } = useAppContext()
+  const { data, updateData } = useAppContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 h-14 md:h-16 bg-card/80 backdrop-blur-xl border-b border-border/50 z-50 shadow-sm">
+      <header className="mp-nav fixed top-0 left-0 right-0 h-14 md:h-16 z-50">
         <div
           className={`h-full flex items-center justify-between px-4 md:px-6 transition-[padding] duration-300 ease-in-out ${isSidebarOpen ? "lg:pl-[16rem]" : "lg:pl-6"}`}
         >
@@ -31,7 +31,7 @@ export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenu
               variant="ghost"
               size="icon"
               onClick={onOpenMobileMenu}
-              className="lg:hidden h-9 w-9 shrink-0 rounded-lg border border-border/50 bg-background/50 hover:bg-accent/50 dark:hover:bg-white/10 dark:active:bg-white/15 flex items-center justify-center"
+              className="lg:hidden h-9 w-9 shrink-0 rounded-lg mp-btn-ghost flex items-center justify-center"
               aria-label="Open menu"
             >
               <PanelLeft className="h-5 w-5 shrink-0" />
@@ -71,37 +71,9 @@ export function TopHeader({ isSidebarOpen = true, onOpenMobileMenu, isMobileMenu
             </SelectContent>
           </Select> */}
 
-          <Button
-  onClick={() => setIsModalOpen(true)}
-  className="
-    gap-2
-    bg-primary
-    text-primary-foreground
-    shadow-sm
-
-    transition-colors duration-200
-
-    hover:bg-primary/90
-    dark:hover:bg-primary/80
-    dark:active:bg-primary/70
-    hover:shadow-md
-
-    active:bg-primary/85
-
-    focus-visible:outline-none
-    focus-visible:ring-2
-    focus-visible:ring-primary/40
-    focus-visible:ring-offset-2
-  "
->
-  <Plus className="w-4 h-4" />
-  <span className="hidden sm:inline">Add Daily Actuals</span>
-</Button>
-
-
-          {/* Theme Toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-10 h-10 bg-transparent border border-border/50 dark:hover:bg-white/10 dark:active:bg-white/15 rounded-lg">
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          <Button onClick={() => setIsModalOpen(true)} variant="default" className="gap-2">
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Daily Actuals</span>
           </Button>
         </div>
         </div>

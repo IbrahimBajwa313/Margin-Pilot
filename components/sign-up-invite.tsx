@@ -322,7 +322,7 @@ export function SignUpInvite({ onSwitchToLogin, initialEmail }: SignUpInviteProp
           <CardFooter className="flex flex-col space-y-4 pt-4 px-0">
             <Button
               type="submit"
-              className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg"
+              className="w-full h-11 font-semibold rounded-lg"
               disabled={isSubmitting || !isPasswordValid || !termsAccepted}
             >
               {isSubmitting ? "Creating account…" : "Create account & join"}

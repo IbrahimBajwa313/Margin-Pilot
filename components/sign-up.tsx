@@ -459,7 +459,7 @@ export function SignUp({ onSwitchToLogin, initialEmail }: SignUpScreenProps) {
           <CardFooter className="flex flex-col space-y-4 pt-4 md:pt-6 px-0">
             <Button
               type="submit"
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+              className="w-full h-12 font-bold rounded-lg"
               disabled={isSubmitting || !isPasswordValid || !termsAccepted}
             >
               {isSubmitting ? "Creating Account..." : "Create Account"}

@@ -285,7 +285,7 @@ export default function MarginCalculatorPage() {
               Edit Markup % or Margin % — the other is calculated automatically.
             </p>
           </div>
-          <Button onClick={addItem} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shrink-0">
+          <Button onClick={addItem} className="w-full sm:w-auto shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             Add row
           </Button>
